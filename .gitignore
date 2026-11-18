@@ -1,0 +1,7 @@
+node_modules/
+package-lock.json
+test/
+tools/_research-*.mjs
+*.zip
+.DS_Store
+Thumbs.db

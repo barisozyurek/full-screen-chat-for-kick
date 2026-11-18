@@ -1,0 +1,440 @@
+/* ==========================================================================
+   Full-Screen Chat for Kick — transparent fullscreen chat overlay.
+   Only affects .fscfk-* classes; Kick's own chat styles are preserved.
+   ========================================================================== */
+
+.fscfk-panel {
+  position: fixed;
+  z-index: 2147483000;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  background: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  animation: fscfk-fade-in 120ms ease-out both;
+}
+
+.fscfk-panel[hidden] {
+  display: none !important;
+}
+
+@keyframes fscfk-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Backdrop: not a flat color, but a blurred copy of the video.
+   --fscfk-blur  : blur radius (px, configurable)
+   --fscfk-tint  : fixed dark veil opacity */
+.fscfk-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 12px;
+  background: rgba(9, 11, 15, var(--fscfk-tint, 0.3));
+  pointer-events: none;
+}
+
+.fscfk-panel.fscfk-blur .fscfk-scrim {
+  -webkit-backdrop-filter: blur(var(--fscfk-blur, 10px)) saturate(1.08);
+  backdrop-filter: blur(var(--fscfk-blur, 10px)) saturate(1.08);
+}
+
+.fscfk-panel:not(.fscfk-blur) .fscfk-scrim,
+.fscfk-panel:not(.fscfk-blur) {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* Apply the filter to the panel as well. Chromium can composite a fullscreen
+   video separately from child layers, in which case filtering only the scrim
+   does not affect the video behind it. */
+.fscfk-panel.fscfk-blur {
+  -webkit-backdrop-filter: blur(var(--fscfk-blur, 10px)) saturate(1.08);
+  backdrop-filter: blur(var(--fscfk-blur, 10px)) saturate(1.08);
+}
+
+.fscfk-chat-host {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Let Kick's chat root fill the whole host area. */
+.fscfk-chat-host > * {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  visibility: visible !important;
+}
+
+/* Let the video show through: clear every background and border in Kick's
+   chat tree (header, message wrapper, composer…). Only colors are reset;
+   background images and badge icons are kept. */
+.fscfk-chat-host *,
+.fscfk-chat-host *::before,
+.fscfk-chat-host *::after {
+  background-color: transparent !important;
+  border-color: transparent !important;
+}
+
+/* Do not let user-select:none from the fullscreen element leak into chat. */
+.fscfk-chat-host,
+.fscfk-chat-host * {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* No scrollbar for the overlay chat. */
+.fscfk-chat-host * {
+  scrollbar-width: none;
+}
+
+.fscfk-chat-host *::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Text shadow for readability over bright scenes. */
+.fscfk-panel.fscfk-shadow .fscfk-chat-host,
+.fscfk-panel.fscfk-shadow .fscfk-chat-host * {
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.92),
+    0 0 6px rgba(0, 0, 0, 0.5);
+}
+
+/* Kick chrome hidden in messages-only mode (header, composer, notification strips). */
+.fscfk-chrome-hidden {
+  display: none !important;
+}
+
+/* Kick shows a floating action bar (reply / pin / delete) when hovering a
+   message. The overlay does not need message actions, so keep it hidden. */
+.fscfk-chat-host #chatroom-messages [class*="betterhover:group-hover:flex"] {
+  display: none !important;
+}
+
+.fscfk-chat-host #chatroom-messages [class*="group-hover:flex"],
+.fscfk-chat-host #chatroom-messages [class*="group-hover:block"],
+.fscfk-chat-host #chatroom-messages [class*="group-hover:opacity-100"],
+.fscfk-chat-host #chatroom-messages [class*="reply" i],
+.fscfk-chat-host #chatroom-messages [data-testid*="reply" i],
+.fscfk-chat-host #chatroom-messages [aria-label*="reply" i],
+.fscfk-chat-host #chatroom-messages [title*="reply" i] {
+  display: none !important;
+}
+
+/* ------------------------------------------------------- hovered controls */
+
+.fscfk-tools {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms ease-out;
+}
+
+.fscfk-panel.fscfk-show-ui .fscfk-tools {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.fscfk-grab,
+.fscfk-pin,
+.fscfk-settings-button,
+.fscfk-close {
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(8, 8, 10, 0.62);
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+}
+
+.fscfk-grab {
+  width: 24px;
+  height: 20px;
+  cursor: grab;
+}
+
+.fscfk-grab:active {
+  cursor: grabbing;
+}
+
+.fscfk-pin,
+.fscfk-settings-button,
+.fscfk-close {
+  width: 20px;
+  height: 20px;
+}
+
+.fscfk-pin svg,
+.fscfk-settings-button svg,
+.fscfk-close svg,
+.fscfk-grab svg {
+  display: block;
+  margin: 0 auto;
+  flex: 0 0 auto;
+  transform: translateY(-0.5px);
+}
+
+.fscfk-pin[aria-pressed="true"] {
+  border-color: rgba(83, 252, 24, 0.7);
+  background: rgba(83, 252, 24, 0.24);
+  color: #eaffdf;
+}
+
+.fscfk-panel.fscfk-pinned .fscfk-grab {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.fscfk-grab:hover,
+.fscfk-pin:hover,
+.fscfk-settings-button:hover,
+.fscfk-close:hover {
+  border-color: rgba(83, 252, 24, 0.55);
+  background: rgba(83, 252, 24, 0.18);
+  color: #eaffdf;
+}
+
+.fscfk-grab:focus-visible,
+.fscfk-pin:focus-visible,
+.fscfk-settings-button:focus-visible,
+.fscfk-close:focus-visible {
+  outline: 2px solid #53fc18;
+  outline-offset: 1px;
+}
+
+.fscfk-settings-menu {
+  position: absolute;
+  top: 25px;
+  left: 0;
+  z-index: 5;
+  display: grid;
+  gap: 9px;
+  width: 186px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  background: rgba(8, 8, 10, 0.92);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.38);
+  color: rgba(255, 255, 255, 0.92);
+  font: 11px/1.3 "Segoe UI", system-ui, sans-serif;
+  backdrop-filter: blur(12px);
+}
+
+.fscfk-settings-menu[hidden] {
+  display: none;
+}
+
+.fscfk-setting {
+  position: relative;
+  display: grid;
+  gap: 5px;
+}
+
+.fscfk-setting output {
+  position: absolute;
+  right: 10px;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.fscfk-setting input[type="range"] {
+  width: 100%;
+  accent-color: #53fc18;
+}
+
+.fscfk-setting-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.fscfk-setting-toggle input {
+  accent-color: #53fc18;
+}
+
+.fscfk-panel.fscfk-pinned .fscfk-resize {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------- resize */
+
+.fscfk-resize {
+  position: absolute;
+  z-index: 4;
+  width: 26px;
+  height: 26px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms ease-out;
+  touch-action: none;
+}
+
+.fscfk-resize-sw {
+  bottom: 0;
+  left: 0;
+  cursor: nesw-resize;
+}
+
+.fscfk-resize-se {
+  right: 0;
+  bottom: 0;
+  cursor: nwse-resize;
+}
+
+.fscfk-panel.fscfk-show-ui .fscfk-resize {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.fscfk-resize::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 0 solid rgba(255, 255, 255, 0.7);
+  transition: border-color 120ms ease-out;
+}
+
+.fscfk-resize-sw::after {
+  bottom: 4px;
+  left: 4px;
+  border-left-width: 1.5px;
+  border-bottom-width: 1.5px;
+  border-bottom-left-radius: 2px;
+}
+
+.fscfk-resize-se::after {
+  right: 4px;
+  bottom: 4px;
+  border-right-width: 1.5px;
+  border-bottom-width: 1.5px;
+  border-bottom-right-radius: 2px;
+}
+
+.fscfk-resize:hover::after {
+  border-color: #53fc18;
+}
+
+/* ------------------------------------------------------------------ pill */
+
+.fscfk-pill {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 2147483000;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 13px 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(10, 10, 13, 0.78);
+  color: #fff;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  font: 600 12px/1 "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  animation: fscfk-pill-in 160ms ease-out both;
+}
+
+.fscfk-pill[hidden] {
+  display: none !important;
+}
+
+.fscfk-pill > svg {
+  flex: 0 0 auto;
+  color: #53fc18;
+}
+
+.fscfk-pill:hover {
+  border-color: rgba(83, 252, 24, 0.5);
+  background: rgba(14, 17, 14, 0.92);
+  color: #eaffdf;
+}
+
+.fscfk-pill:focus-visible {
+  outline: 2px solid #53fc18;
+  outline-offset: 2px;
+}
+
+@keyframes fscfk-pill-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ----------------------------------------------------------------- toast */
+
+.fscfk-toast {
+  position: fixed;
+  bottom: 44px;
+  left: 50%;
+  z-index: 2147483000;
+  max-width: min(420px, 80vw);
+  padding: 9px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  background: rgba(12, 12, 15, 0.94);
+  color: #fff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  font: 500 12px/1.4 "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  transform: translateX(-50%);
+  animation: fscfk-toast-in 160ms ease-out both;
+  pointer-events: none;
+}
+
+@keyframes fscfk-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fscfk-panel,
+  .fscfk-pill,
+  .fscfk-toast {
+    animation: none;
+  }
+}
