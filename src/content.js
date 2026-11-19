@@ -590,6 +590,43 @@
       },
       true
     );
+
+    // Kick's reply-line and username controls open side panels or identity
+    // dialogs outside the fullscreen player. They are not useful in this
+    // overlay and can leave stale, inaccessible UI behind. Capture these
+    // actions before React sees them, but leave normal message text and
+    // scrolling/copy behaviour untouched.
+    chatHost.addEventListener(
+      'click',
+      (event) => {
+        if (!(event.target instanceof Element)) return;
+
+        const usernameButton = event.target.closest(
+          '#chatroom-messages button[style*="color:"], '
+          + '#chatroom-messages [data-testid="channel-username"], '
+          + '#chatroom-messages [data-prevent-expand="true"]'
+        );
+        if (usernameButton) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          return;
+        }
+
+        const replyButton = event.target.closest(
+          '#chatroom-messages button[aria-label*="reply" i], '
+          + '#chatroom-messages button[title*="reply" i], '
+          + '#chatroom-messages [data-testid*="reply" i], '
+          + '#chatroom-messages [aria-label*="reply" i], '
+          + '#chatroom-messages [title*="reply" i], '
+          + '#chatroom-messages button.truncate.text-left'
+        );
+        if (replyButton) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      },
+      true
+    );
   }
 
   // ------------------------------------------------------- appearance / obs

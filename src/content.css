@@ -71,6 +71,23 @@
   overflow: hidden;
 }
 
+/* Kick's own overlays (tooltips, popovers, dialogs) are portalled into the
+   fullscreen element as siblings of the panel. The panel uses a very high
+   z-index, so without this those overlays are painted underneath the chat —
+   e.g. the reply preview shown when hovering a quoted message. Keep Kick's
+   overlays above the panel. `data-fullscreen-portal-owner` is Kick's marker for
+   elements it mounted directly in the fullscreen element. */
+[data-fullscreen-portal-owner],
+[data-fullscreen-portal-owner] .z-tooltip,
+[data-fullscreen-portal-owner] .z-popover,
+[data-fullscreen-portal-owner] .z-dropdown,
+[data-fullscreen-portal-owner] .z-dialog,
+[data-fullscreen-portal-owner] .z-modal,
+[data-fullscreen-portal-owner] .z-alert-dialog,
+[data-fullscreen-portal-owner] [data-radix-popper-content-wrapper] {
+  z-index: 2147483001 !important;
+}
+
 /* Let Kick's chat root fill the whole host area. */
 .fscfk-chat-host > * {
   display: flex !important;
@@ -133,6 +150,18 @@
 /* Kick chrome hidden in messages-only mode (header, composer, notification strips). */
 .fscfk-chrome-hidden {
   display: none !important;
+}
+
+/* Disable reply-thread and identity interaction while the chat is in the
+   fullscreen overlay. Kick can open portals into the fullscreen element or
+   leave them behind after exit, so these controls should do nothing here. */
+.fscfk-chat-host #chatroom-messages button[data-prevent-expand="true"],
+.fscfk-chat-host #chatroom-messages button[style*="color:"],
+.fscfk-chat-host #chatroom-messages button.truncate.text-left,
+.fscfk-chat-host #chatroom-messages [data-testid*="reply" i],
+.fscfk-chat-host #chatroom-messages [aria-label*="reply" i],
+.fscfk-chat-host #chatroom-messages [title*="reply" i] {
+  cursor: default !important;
 }
 
 /* Kick shows a floating action bar (reply / pin / delete) when hovering a
