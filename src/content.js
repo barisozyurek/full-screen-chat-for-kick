@@ -61,6 +61,7 @@
       fill: [{ c: [9, 6] }, { c: [15, 6] }, { c: [9, 12] }, { c: [15, 12] }, { c: [9, 18] }, { c: [15, 18] }],
     },
     close: { stroke: ['M6 6l12 12', 'M18 6L6 18'] },
+    down: { stroke: ['M12 4v15', 'M6 13l6 6 6-6'] },
     pin: {
       stroke: ['M8 4h8', 'M9 4v6l-3 3h12l-3-3V4', 'M12 13v7'],
     },
@@ -498,7 +499,13 @@
     resizeSe.dataset.dir = 'se';
     resizeSe.title = 'Resize (bottom-right corner)';
 
-    panel.append(scrim, chatHost, tools, resizeSw, resizeSe);
+    const jumpToLatest = make('button', 'fscfk-jump-latest', { type: 'button' });
+    jumpToLatest.hidden = true;
+    jumpToLatest.setAttribute('aria-label', 'Jump to latest message');
+    jumpToLatest.appendChild(makeIcon('down', 14));
+    jumpToLatest.append(document.createTextNode(' Jump to latest'));
+
+    panel.append(scrim, chatHost, tools, jumpToLatest, resizeSw, resizeSe);
   }
 
   function bindPanel() {
@@ -559,6 +566,19 @@
       closePanel();
     });
     close.addEventListener('dblclick', (event) => event.stopPropagation());
+
+    const jumpLatest = panel.querySelector('.fscfk-jump-latest');
+    if (jumpLatest) {
+      jumpLatest.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        jumpToLatestMessages();
+      });
+      jumpLatest.addEventListener('dblclick', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+      });
+    }
 
     for (const handle of panel.querySelectorAll('.fscfk-resize')) {
       handle.addEventListener('pointerdown', onResizeStart);
@@ -809,17 +829,36 @@
       scrollerAtBottom =
         markedScroller.scrollHeight - markedScroller.scrollTop - markedScroller.clientHeight <
         48;
+      updateJumpLatestButton();
     };
     markedScroller.addEventListener('scroll', scrollerScrollHandler, { passive: true });
     scrollerAtBottom =
       markedScroller.scrollHeight - markedScroller.scrollTop - markedScroller.clientHeight < 48;
   }
 
+  function updateJumpLatestButton() {
+    if (!panel) return;
+    const button = panel.querySelector('.fscfk-jump-latest');
+    if (!button) return;
+    const shouldShow = !!markedScroller && !scrollerAtBottom;
+    button.hidden = !shouldShow;
+  }
+
+  function jumpToLatestMessages() {
+    if (!markedScroller || !markedScroller.isConnected) return;
+    markedScroller.scrollTo({
+      top: markedScroller.scrollHeight,
+      behavior: 'smooth',
+    });
+    scrollerAtBottom = true;
+    updateJumpLatestButton();
+  }
+
   function keepScrollerAtBottom() {
     const node = markedScroller;
     if (!node || !node.isConnected || !scrollerAtBottom) return;
     if (node.scrollTop + node.clientHeight < node.scrollHeight - 2) {
-      node.scrollTop = node.scrollHeight;
+      node.scrollTo({ top: node.scrollHeight, behavior: 'auto' });
     }
   }
 
@@ -841,6 +880,7 @@
     obsScroller = applyObsMode();
     setObsScroller(obsScroller);
     if (obsScroller) keepScrollerAtBottom();
+    updateJumpLatestButton();
   }
 
   function scheduleObsSync(delay = 160) {
@@ -874,6 +914,12 @@
         scheduleObsSync();
         return;
       }
+
+      window.requestAnimationFrame(() => {
+        if (!active) return;
+        keepScrollerAtBottom();
+        updateJumpLatestButton();
+      });
     });
     obsObserver.observe(chat, { childList: true, subtree: true });
   }
