@@ -81,7 +81,18 @@
   max-height: none !important;
   min-width: 0 !important;
   min-height: 0 !important;
+  /* Kick fades the chat out (`group-data-[chat=false]/main:opacity-0`) when its
+     own React state briefly says chat is hidden. The overlay always shows it. */
+  opacity: 1 !important;
   visibility: visible !important;
+}
+
+/* Kick's virtualised message list keeps a fixed `h-full`; at the smallest panel
+   heights this keeps it flexible instead of collapsing to zero. */
+.fscfk-chat-host .fscfk-scroller {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
 }
 
 /* Let the video show through: clear every background and border in Kick's

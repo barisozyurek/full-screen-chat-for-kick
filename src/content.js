@@ -96,8 +96,9 @@
   let mountedAt = 0;
 
   let activateToken = 0;
-  let dataChatSnapshot = [];
+  let dataChatOriginals = new Map();
   let dataChatObserver = null;
+  let dataChatWatchdog = 0;
   let chatObserver = null;
   let selfDataChatWrite = false;
 
@@ -115,6 +116,12 @@
   // ---------------------------------------------------------------- utils
 
   const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+  function isElementVisible(node) {
+    if (!node || !node.isConnected || !node.getClientRects().length) return false;
+    const style = getComputedStyle(node);
+    return style.display !== 'none' && style.visibility !== 'hidden';
+  }
 
   function make(tag, className, props) {
     const node = document.createElement(tag);
@@ -224,9 +231,10 @@
       let node = input;
       for (let i = 0; i < 10 && node && node.parentElement; i += 1) {
         node = node.parentElement;
+        if (panel && panel.contains(node)) break;
         const rect = node.getBoundingClientRect();
         if (
-          rect.height > 260 &&
+          rect.height > 200 &&
           rect.width > 200 &&
           rect.width < window.innerWidth * 0.65
         ) {
@@ -302,7 +310,7 @@
     fsEl = el;
 
     const token = ++activateToken;
-    const chatEl = await waitForChat(5);
+    let chatEl = await waitForChat(5);
     if (token !== activateToken || !fsEl || fsEl !== getFsEl()) return;
 
     if (!chatEl) {
@@ -313,6 +321,14 @@
       return;
     }
 
+    // Entering/leaving fullscreen makes Kick re-render its layout. Waiting one
+    // more beat and re-reading the chat avoids mounting a node that React has
+    // just replaced (a detached copy keeps its last messages but never updates).
+    await new Promise((resolve) => window.setTimeout(resolve, 140));
+    if (token !== activateToken || !fsEl || fsEl !== getFsEl()) return;
+    const settled = findChat();
+    if (settled && settled.isConnected) chatEl = settled;
+
     mountPanel(chatEl);
   }
 
@@ -320,6 +336,10 @@
 
   function mountPanel(chatEl) {
     if (active || !fsEl) return;
+    if (!chatEl || !chatEl.isConnected || (panel && panel.contains(chatEl))) {
+      showPill();
+      return;
+    }
 
     chat = chatEl;
     chatParent = chat.parentNode;
@@ -346,23 +366,21 @@
     showUi(true);
   }
 
-  function teardownPanel() {
+  function teardownPanel(options = {}) {
     activateToken += 1;
 
     if (chatObserver) {
       chatObserver.disconnect();
       chatObserver = null;
     }
-    if (dataChatObserver) {
-      dataChatObserver.disconnect();
-      dataChatObserver = null;
-    }
+    stopDataChatWatch();
 
     clearObsMode();
     stopObsSync();
 
-    // Put the chat back exactly where it came from.
-    if (chat && chatParent && chatParent.isConnected) {
+    // Put the chat back exactly where it came from. When Kick has already
+    // replaced the chat node, restoring the old one would duplicate it.
+    if (!options.discardChat && chat && chatParent && chatParent.isConnected) {
       if (chatNext && chatNext.parentNode === chatParent) {
         chatParent.insertBefore(chat, chatNext);
       } else {
@@ -410,12 +428,16 @@
 
   function handleChatLost() {
     if (!active) return;
-    teardownPanel();
+    const wasVisible = visible;
+    teardownPanel({ discardChat: true });
     const el = getFsEl();
-    if (el && isPlayerFullscreen(el)) {
-      fsEl = el;
-      showPill();
+    if (!el || !isPlayerFullscreen(el)) {
+      unmountPill();
+      return;
     }
+    fsEl = el;
+    showPill();
+    if (wasVisible) activate(false);
   }
 
   function buildPanel() {
@@ -630,21 +652,29 @@
   // Is this the scrollable message area? Stay conservative so a wrong node
   // is never mistaken for the message area and the whole chat is not hidden.
   function isMessageScroller(node) {
-    if (!node) return false;
+    if (!node || !isElementVisible(node)) return false;
     if (node.id === 'chatroom-messages') return true;
     if (node.getAttribute('data-testid') === 'chatroom-messages') return true;
     if (/chatroom-messages/i.test(String(node.className))) return true;
     const style = getComputedStyle(node);
     if (!/(auto|scroll)/.test(style.overflowY)) return false;
-    if (node.clientHeight < 120 || node.clientWidth < 100) return false;
+    // A very short panel (or a quiet chat that has not started scrolling yet)
+    // must still be recognised, otherwise the header/composer are never hidden
+    // and the message area is squeezed down to zero height.
+    if (node.clientHeight < 24 || node.clientWidth < 100) return false;
     return node.scrollHeight > node.clientHeight + 4;
   }
 
   function findMessageScroller(root) {
+    if (!root) return null;
+
+    // Kick's own id is authoritative; no size heuristics are needed. Asking for
+    // a minimum height used to fail at the smallest panel sizes, which kept the
+    // header and composer visible and left no room for messages.
     const known = root.querySelector(
       '#chatroom-messages, [data-testid="chatroom-messages"]'
     );
-    if (known && known.clientHeight > 80) return known;
+    if (known && isElementVisible(known)) return known;
 
     let best = null;
     let bestScore = 0;
@@ -716,14 +746,64 @@
   let obsObserver = null;
   let obsTimer = 0;
   let obsScroller = null;
+  let markedScroller = null;
+  let scrollerScrollHandler = null;
+  let scrollerAtBottom = true;
+
+  function setObsScroller(node) {
+    const next = node && node.isConnected ? node : null;
+    if (markedScroller === next) return;
+
+    if (markedScroller) {
+      markedScroller.classList.remove('fscfk-scroller');
+      if (scrollerScrollHandler) {
+        markedScroller.removeEventListener('scroll', scrollerScrollHandler);
+      }
+    }
+
+    markedScroller = next;
+    scrollerScrollHandler = null;
+    if (!markedScroller) return;
+
+    // Keep the virtualised message list flexible at any panel height.
+    markedScroller.classList.add('fscfk-scroller');
+    scrollerScrollHandler = () => {
+      if (!markedScroller) return;
+      scrollerAtBottom =
+        markedScroller.scrollHeight - markedScroller.scrollTop - markedScroller.clientHeight <
+        48;
+    };
+    markedScroller.addEventListener('scroll', scrollerScrollHandler, { passive: true });
+    scrollerAtBottom =
+      markedScroller.scrollHeight - markedScroller.scrollTop - markedScroller.clientHeight < 48;
+  }
+
+  function keepScrollerAtBottom() {
+    const node = markedScroller;
+    if (!node || !node.isConnected || !scrollerAtBottom) return;
+    if (node.scrollTop + node.clientHeight < node.scrollHeight - 2) {
+      node.scrollTop = node.scrollHeight;
+    }
+  }
+
+  function refreshChatLayout() {
+    if (!active) return;
+    scheduleObsSync(60);
+    window.requestAnimationFrame(() => {
+      if (active) keepScrollerAtBottom();
+    });
+  }
 
   function syncObsMode() {
     if (!active || !chat) return;
     if (!settings.obsMode) {
       clearObsMode();
+      setObsScroller(null);
       return;
     }
     obsScroller = applyObsMode();
+    setObsScroller(obsScroller);
+    if (obsScroller) keepScrollerAtBottom();
   }
 
   function scheduleObsSync(delay = 160) {
@@ -771,6 +851,7 @@
       obsTimer = 0;
     }
     obsScroller = null;
+    setObsScroller(null);
   }
 
   // -------------------------------------------------------------- geometry
@@ -829,6 +910,7 @@
     persist();
     geom = computeGeometry();
     applyGeometryNow();
+    refreshChatLayout();
   }
 
   function markDragging(value) {
@@ -940,6 +1022,7 @@
       geom.y = clamp(geom.y, EDGE, Math.max(EDGE, window.innerHeight - geom.h - EDGE));
       applyGeometryNow();
       saveGeometry();
+      refreshChatLayout();
     };
 
     surface.addEventListener('pointermove', onMove);
@@ -994,6 +1077,7 @@
       markDragging(false);
       applyGeometryNow();
       saveGeometry();
+      refreshChatLayout();
     };
 
     handle.addEventListener('pointermove', onMove);
@@ -1021,7 +1105,14 @@
       return;
     }
     if (!chat || !chat.isConnected) {
-      handleChatLost();
+      teardownPanel({ discardChat: true });
+      const el = getFsEl();
+      if (!el || !isPlayerFullscreen(el)) {
+        unmountPill();
+        return;
+      }
+      fsEl = el;
+      activate(true);
       return;
     }
     assertDataChat();
@@ -1031,6 +1122,7 @@
     applyGeometryNow();
     applyAppearance();
     startObsSync();
+    refreshChatLayout();
     hidePill();
     showUi(true);
   }
@@ -1076,53 +1168,72 @@
 
   // -------------------------------------------------------------- data-chat
 
-  function snapshotDataChat() {
-    dataChatSnapshot = [];
+  // Kick drives chat visibility from data-chat on the page root. When it is
+  // "false" the chat root gets `group-data-[chat=false]/main:opacity-0` and
+  // `lg:w-0`; the moved chat then looks empty even though messages keep
+  // arriving. React re-writes the attribute during fullscreen transitions, so
+  // pin it to "true" for as long as the overlay owns the chat.
+  function assertDataChat() {
+    let changed = false;
     for (const node of document.querySelectorAll('[data-chat]')) {
-      dataChatSnapshot.push({ node, value: node.getAttribute('data-chat') });
+      if (!dataChatOriginals.has(node)) {
+        dataChatOriginals.set(node, node.getAttribute('data-chat'));
+      }
+      if (node.getAttribute('data-chat') !== 'true') {
+        node.setAttribute('data-chat', 'true');
+        changed = true;
+      }
     }
-    selfDataChatWrite = true;
-    for (const entry of dataChatSnapshot) entry.node.setAttribute('data-chat', 'true');
-    window.setTimeout(() => {
-      selfDataChatWrite = false;
-    }, 0);
+    if (changed) {
+      selfDataChatWrite = true;
+      window.setTimeout(() => {
+        selfDataChatWrite = false;
+      }, 0);
+    }
+    return changed;
+  }
+
+  function snapshotDataChat() {
+    dataChatOriginals = new Map();
+    assertDataChat();
   }
 
   function restoreDataChat() {
-    for (const entry of dataChatSnapshot) {
-      if (!entry.node.isConnected) continue;
-      if (entry.value === null) entry.node.removeAttribute('data-chat');
-      else entry.node.setAttribute('data-chat', entry.value);
+    for (const [node, value] of dataChatOriginals) {
+      if (!node.isConnected) continue;
+      if (value === null) node.removeAttribute('data-chat');
+      else node.setAttribute('data-chat', value);
     }
-    dataChatSnapshot = [];
-  }
-
-  function assertDataChat() {
-    if (!dataChatSnapshot.length) return;
-    selfDataChatWrite = true;
-    for (const entry of dataChatSnapshot) {
-      if (entry.node.isConnected) entry.node.setAttribute('data-chat', 'true');
-    }
-    window.setTimeout(() => {
-      selfDataChatWrite = false;
-    }, 0);
+    dataChatOriginals.clear();
   }
 
   function observeDataChat() {
-    if (!dataChatSnapshot.length) return;
+    stopDataChatWatch();
     dataChatObserver = new MutationObserver(() => {
       if (!active || selfDataChatWrite) return;
       if (Date.now() - mountedAt < 400) return;
-      const hiddenByKick = dataChatSnapshot.some(
-        (entry) => entry.node.isConnected && entry.node.getAttribute('data-chat') !== 'true'
-      );
-      if (hiddenByKick) closePanel();
+      assertDataChat();
     });
-    for (const entry of dataChatSnapshot) {
-      dataChatObserver.observe(entry.node, {
-        attributes: true,
-        attributeFilter: ['data-chat'],
-      });
+    dataChatObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-chat'],
+      subtree: true,
+    });
+    // React can also mount a fresh layout with data-chat already false, which
+    // produces no attribute mutation. A cheap watchdog re-asserts it.
+    dataChatWatchdog = window.setInterval(() => {
+      if (active) assertDataChat();
+    }, 1000);
+  }
+
+  function stopDataChatWatch() {
+    if (dataChatObserver) {
+      dataChatObserver.disconnect();
+      dataChatObserver = null;
+    }
+    if (dataChatWatchdog) {
+      window.clearInterval(dataChatWatchdog);
+      dataChatWatchdog = 0;
     }
   }
 
@@ -1180,6 +1291,7 @@
     geom.x = clamp(geom.x, EDGE, Math.max(EDGE, window.innerWidth - geom.w - EDGE));
     geom.y = clamp(geom.y, EDGE, Math.max(EDGE, window.innerHeight - geom.h - EDGE));
     applyGeometryNow();
+    refreshChatLayout();
   }
 
   function onStorageChanged(changes, area) {
