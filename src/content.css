@@ -188,26 +188,25 @@
   bottom: 8px;
   z-index: 6;
   box-sizing: border-box;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  min-width: 120px;
+  display: grid;
+  place-items: center;
+  width: 30px;
   height: 30px;
-  padding: 0 10px;
+  padding: 0;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 6px;
   background: rgba(8, 8, 10, 0.62);
   box-shadow: none;
   backdrop-filter: none;
   color: rgba(255, 255, 255, 0.9);
-  font: 650 11px/1 "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
   cursor: pointer;
   transform: translateX(-50%);
   transition: border-color 120ms ease-out, background 120ms ease-out, color 120ms ease-out, transform 120ms ease-out;
 }
 
 .fscfk-jump-latest svg {
+  display: block;
+  margin: 0 auto;
   flex: 0 0 auto;
 }
 

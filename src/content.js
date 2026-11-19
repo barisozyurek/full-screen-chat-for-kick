@@ -502,8 +502,7 @@
     const jumpToLatest = make('button', 'fscfk-jump-latest', { type: 'button' });
     jumpToLatest.hidden = true;
     jumpToLatest.setAttribute('aria-label', 'Jump to latest message');
-    jumpToLatest.appendChild(makeIcon('down', 14));
-    jumpToLatest.append(document.createTextNode(' Jump to latest'));
+    jumpToLatest.appendChild(makeIcon('down', 16));
 
     panel.append(scrim, chatHost, tools, jumpToLatest, resizeSw, resizeSe);
   }
