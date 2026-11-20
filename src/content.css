@@ -187,44 +187,13 @@
   left: 50%;
   bottom: 8px;
   z-index: 6;
-  box-sizing: border-box;
-  display: grid;
-  place-items: center;
   width: 30px;
   height: 30px;
-  padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  background: rgba(8, 8, 10, 0.62);
-  box-shadow: none;
-  backdrop-filter: none;
-  color: rgba(255, 255, 255, 0.9);
-  cursor: pointer;
   transform: translateX(-50%);
-  transition: border-color 120ms ease-out, background 120ms ease-out, color 120ms ease-out, transform 120ms ease-out;
-}
-
-.fscfk-jump-latest svg {
-  display: block;
-  margin: 0 auto;
-  flex: 0 0 auto;
 }
 
 .fscfk-jump-latest[hidden] {
   display: none;
-}
-
-.fscfk-jump-latest:hover {
-  border-color: rgba(255, 255, 255, 0.32);
-  background: rgba(0, 0, 0, 0.82);
-  color: #fff;
-  box-shadow: none;
-  transform: translateX(-50%) translateY(-1px);
-}
-
-.fscfk-jump-latest:focus-visible {
-  outline: 2px solid #53fc18;
-  outline-offset: 2px;
 }
 
 /* ------------------------------------------------------- hovered controls */
@@ -250,7 +219,8 @@
 .fscfk-grab,
 .fscfk-pin,
 .fscfk-settings-button,
-.fscfk-close {
+.fscfk-close,
+.fscfk-jump-latest {
   box-sizing: border-box;
   display: grid;
   place-items: center;
@@ -282,7 +252,8 @@
 .fscfk-pin svg,
 .fscfk-settings-button svg,
 .fscfk-close svg,
-.fscfk-grab svg {
+.fscfk-grab svg,
+.fscfk-jump-latest svg {
   display: block;
   margin: 0 auto;
   flex: 0 0 auto;
@@ -303,7 +274,8 @@
 .fscfk-grab:hover,
 .fscfk-pin:hover,
 .fscfk-settings-button:hover,
-.fscfk-close:hover {
+.fscfk-close:hover,
+.fscfk-jump-latest:hover {
   border-color: rgba(83, 252, 24, 0.55);
   background: rgba(83, 252, 24, 0.18);
   color: #eaffdf;
@@ -312,7 +284,8 @@
 .fscfk-grab:focus-visible,
 .fscfk-pin:focus-visible,
 .fscfk-settings-button:focus-visible,
-.fscfk-close:focus-visible {
+.fscfk-close:focus-visible,
+.fscfk-jump-latest:focus-visible {
   outline: 2px solid #53fc18;
   outline-offset: 1px;
 }
