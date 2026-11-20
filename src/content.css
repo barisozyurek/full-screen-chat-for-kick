@@ -32,8 +32,9 @@
 }
 
 /* Backdrop: not a flat color, but a blurred copy of the video.
-   --fscfk-blur  : blur radius (px, configurable)
-   --fscfk-tint  : fixed dark veil opacity */
+   --fscfk-blur     : blur radius in px, scaled from the setting
+   --fscfk-saturate : saturation multiplier, scaled from the setting
+   --fscfk-tint     : dark veil opacity, scaled from the setting */
 .fscfk-scrim {
   position: absolute;
   inset: 0;
@@ -44,8 +45,8 @@
 }
 
 .fscfk-panel.fscfk-blur .fscfk-scrim {
-  -webkit-backdrop-filter: blur(var(--fscfk-blur, 10px)) saturate(1.08);
-  backdrop-filter: blur(var(--fscfk-blur, 10px)) saturate(1.08);
+  -webkit-backdrop-filter: blur(var(--fscfk-blur, 0px)) saturate(var(--fscfk-saturate, 1));
+  backdrop-filter: blur(var(--fscfk-blur, 0px)) saturate(var(--fscfk-saturate, 1));
 }
 
 .fscfk-panel:not(.fscfk-blur) .fscfk-scrim,
@@ -58,8 +59,8 @@
    video separately from child layers, in which case filtering only the scrim
    does not affect the video behind it. */
 .fscfk-panel.fscfk-blur {
-  -webkit-backdrop-filter: blur(var(--fscfk-blur, 10px)) saturate(1.08);
-  backdrop-filter: blur(var(--fscfk-blur, 10px)) saturate(1.08);
+  -webkit-backdrop-filter: blur(var(--fscfk-blur, 0px)) saturate(var(--fscfk-saturate, 1));
+  backdrop-filter: blur(var(--fscfk-blur, 0px)) saturate(var(--fscfk-saturate, 1));
 }
 
 .fscfk-chat-host {

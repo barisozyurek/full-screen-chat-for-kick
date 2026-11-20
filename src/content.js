@@ -647,13 +647,18 @@
     panel.classList.toggle('fscfk-shadow', settings.shadow);
     panel.classList.toggle('fscfk-blur', settings.blur > 0);
     if (settings.blur > 0) {
-      const blurPx = Math.round((settings.blur / MAX_BLUR) * MAX_BLUR_PX);
+      const ratio = settings.blur / MAX_BLUR;
+      const blurPx = Number((ratio * MAX_BLUR_PX).toFixed(2));
+      const saturation = Number((1 + ratio * 0.08).toFixed(3));
+      const tint = Number((ratio * 0.25).toFixed(3));
       panel.style.setProperty('--fscfk-blur', `${blurPx}px`);
-      panel.style.setProperty('backdrop-filter', `blur(${blurPx}px) saturate(1.08)`);
-      panel.style.setProperty('-webkit-backdrop-filter', `blur(${blurPx}px) saturate(1.08)`);
-      panel.style.setProperty('--fscfk-tint', '0.25');
+      panel.style.setProperty('--fscfk-saturate', String(saturation));
+      panel.style.setProperty('backdrop-filter', `blur(${blurPx}px) saturate(${saturation})`);
+      panel.style.setProperty('-webkit-backdrop-filter', `blur(${blurPx}px) saturate(${saturation})`);
+      panel.style.setProperty('--fscfk-tint', String(tint));
     } else {
       panel.style.removeProperty('--fscfk-blur');
+      panel.style.removeProperty('--fscfk-saturate');
       panel.style.removeProperty('backdrop-filter');
       panel.style.removeProperty('-webkit-backdrop-filter');
       panel.style.setProperty('--fscfk-tint', '0');
