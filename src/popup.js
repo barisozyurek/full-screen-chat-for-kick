@@ -126,7 +126,7 @@ function bind() {
     el.reset.classList.add('is-done');
     window.clearTimeout(resetTimer);
     resetTimer = window.setTimeout(() => {
-      el.reset.textContent = 'Restore default settings';
+      el.reset.textContent = 'Restore defaults';
       el.reset.classList.remove('is-done');
     }, 1400);
   });
