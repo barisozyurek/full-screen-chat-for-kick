@@ -147,7 +147,7 @@
     0 0 6px rgba(0, 0, 0, 0.5);
 }
 
-/* Kick chrome hidden in messages-only mode (header, composer, notification strips). */
+/* Kick chrome hidden in the message view (header, composer, notification strips). */
 .fscfk-chrome-hidden {
   display: none !important;
 }

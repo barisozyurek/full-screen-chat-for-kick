@@ -6,7 +6,6 @@ const MAX_BLUR = 100;
 const DEFAULTS = {
   enabled: true,
   autoOpen: true,
-  obsMode: true,
   shadow: true,
   blur: 14,
   pinned: false,
@@ -16,7 +15,6 @@ const DEFAULTS = {
 const el = {
   enabled: document.getElementById('enabled'),
   autoOpen: document.getElementById('autoOpen'),
-  obsMode: document.getElementById('obsMode'),
   shadow: document.getElementById('shadow'),
   blur: document.getElementById('blur'),
   blurOut: document.getElementById('blurOut'),
@@ -32,16 +30,22 @@ function clamp(value, min, max) {
 }
 
 function normalize(raw) {
-  const next = { ...DEFAULTS, ...(raw || {}) };
+  const input = raw || {};
+  const next = {
+    enabled: input.enabled ?? DEFAULTS.enabled,
+    autoOpen: input.autoOpen ?? DEFAULTS.autoOpen,
+    shadow: input.shadow ?? DEFAULTS.shadow,
+    blur: input.blur ?? DEFAULTS.blur,
+    pinned: input.pinned ?? DEFAULTS.pinned,
+    panel: input.panel ?? DEFAULTS.panel,
+  };
   next.enabled = next.enabled !== false;
   next.autoOpen = next.autoOpen !== false;
-  next.obsMode = next.obsMode !== false;
   next.shadow = next.shadow !== false;
   next.pinned = next.pinned === true;
 
   const blur = Number(next.blur);
   next.blur = Number.isFinite(blur) ? clamp(Math.round(blur), 0, MAX_BLUR) : DEFAULTS.blur;
-  delete next.transparency;
 
   next.panel = next.panel && typeof next.panel === 'object' ? next.panel : null;
   return next;
@@ -54,7 +58,6 @@ function paintRange(input, ratio) {
 function render() {
   el.enabled.checked = state.enabled;
   el.autoOpen.checked = state.autoOpen;
-  el.obsMode.checked = state.obsMode;
   el.shadow.checked = state.shadow;
 
   el.blur.value = String(state.blur);
@@ -99,10 +102,6 @@ function bind() {
 
   el.autoOpen.addEventListener('change', () => {
     patch({ autoOpen: el.autoOpen.checked });
-  });
-
-  el.obsMode.addEventListener('change', () => {
-    patch({ obsMode: el.obsMode.checked });
   });
 
   el.shadow.addEventListener('change', () => {

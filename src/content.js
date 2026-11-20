@@ -24,7 +24,6 @@
   const DEFAULTS = Object.freeze({
     enabled: true,
     autoOpen: true,
-    obsMode: true,
     shadow: true,
     blur: 14,
     pinned: false,
@@ -177,14 +176,20 @@
   // ------------------------------------------------------------- settings
 
   function normalize(raw) {
-    const next = { ...DEFAULTS, ...(raw || {}) };
+    const input = raw || {};
+    const next = {
+      enabled: input.enabled ?? DEFAULTS.enabled,
+      autoOpen: input.autoOpen ?? DEFAULTS.autoOpen,
+      shadow: input.shadow ?? DEFAULTS.shadow,
+      blur: input.blur ?? DEFAULTS.blur,
+      pinned: input.pinned ?? DEFAULTS.pinned,
+      panel: input.panel ?? DEFAULTS.panel,
+    };
     next.enabled = next.enabled !== false;
     next.autoOpen = next.autoOpen !== false;
-    next.obsMode = next.obsMode !== false;
     next.shadow = next.shadow !== false;
     next.pinned = next.pinned === true;
     next.blur = clamp(Math.round(Number(next.blur ?? DEFAULTS.blur) || 0), 0, MAX_BLUR);
-    delete next.transparency;
 
     const p = next.panel;
     if (
@@ -359,7 +364,7 @@
     applyGeometryNow();
     applyAppearance();
     syncSettingsMenu();
-    startObsSync();
+    startMessageViewSync();
     bindPanel();
     observeDataChat();
     observeChat();
@@ -376,8 +381,8 @@
     }
     stopDataChatWatch();
 
-    clearObsMode();
-    stopObsSync();
+    clearMessageView();
+    stopMessageViewSync();
 
     // Put the chat back exactly where it came from. When Kick has already
     // replaced the chat node, restoring the old one would duplicate it.
@@ -480,10 +485,6 @@
         <input data-fscfk-blur type="range" min="0" max="100" step="1" value="14">
       </label>
       <label class="fscfk-setting fscfk-setting-toggle">
-        <span>Messages only</span>
-        <input data-fscfk-obs type="checkbox">
-      </label>
-      <label class="fscfk-setting fscfk-setting-toggle">
         <span>Text shadow</span>
         <input data-fscfk-shadow type="checkbox">
       </label>
@@ -543,15 +544,6 @@
       settings.blur = Number(event.target.value);
       panel.querySelector('[data-fscfk-blur-output]').textContent = String(settings.blur);
       applyAppearance();
-      persist();
-    });
-    panel.querySelector('[data-fscfk-obs]').addEventListener('change', (event) => {
-      settings.obsMode = event.target.checked;
-      if (settings.obsMode) startObsSync();
-      else {
-        stopObsSync();
-        clearObsMode();
-      }
       persist();
     });
     panel.querySelector('[data-fscfk-shadow]').addEventListener('change', (event) => {
@@ -648,7 +640,7 @@
     );
   }
 
-  // ------------------------------------------------------- appearance / obs
+  // --------------------------------------------- appearance / message view
 
   function applyAppearance() {
     if (!panel) return;
@@ -684,16 +676,14 @@
     if (!panel) return;
     const blur = panel.querySelector('[data-fscfk-blur]');
     const blurOutput = panel.querySelector('[data-fscfk-blur-output]');
-    const obs = panel.querySelector('[data-fscfk-obs]');
     const shadow = panel.querySelector('[data-fscfk-shadow]');
     if (blur) blur.value = String(settings.blur);
     if (blurOutput) blurOutput.textContent = String(settings.blur);
-    if (obs) obs.checked = settings.obsMode;
     if (shadow) shadow.checked = settings.shadow;
     applyPinState();
   }
 
-  function clearObsMode() {
+  function clearMessageView() {
     for (const node of hiddenChrome) node.classList.remove('fscfk-chrome-hidden');
     hiddenChrome = [];
   }
@@ -785,9 +775,9 @@
     }
   }
 
-  function applyObsMode() {
-    clearObsMode();
-    if (!settings.obsMode || !active || !chat) return null;
+  function applyMessageView() {
+    clearMessageView();
+    if (!active || !chat) return null;
 
     const scroller = findMessageScroller(chat);
     if (!scroller) return null;
@@ -797,16 +787,16 @@
     return scroller;
   }
 
-  // --------------------------------------------------------- obs lifecycle
+  // ------------------------------------------------- message view lifecycle
 
-  let obsObserver = null;
-  let obsTimer = 0;
-  let obsScroller = null;
+  let messageViewObserver = null;
+  let messageViewTimer = 0;
+  let messageViewScroller = null;
   let markedScroller = null;
   let scrollerScrollHandler = null;
   let scrollerAtBottom = true;
 
-  function setObsScroller(node) {
+  function setMessageViewScroller(node) {
     const next = node && node.isConnected ? node : null;
     if (markedScroller === next) return;
 
@@ -863,54 +853,49 @@
 
   function refreshChatLayout() {
     if (!active) return;
-    scheduleObsSync(60);
+    scheduleMessageViewSync(60);
     window.requestAnimationFrame(() => {
       if (active) keepScrollerAtBottom();
     });
   }
 
-  function syncObsMode() {
+  function syncMessageView() {
     if (!active || !chat) return;
-    if (!settings.obsMode) {
-      clearObsMode();
-      setObsScroller(null);
-      return;
-    }
-    obsScroller = applyObsMode();
-    setObsScroller(obsScroller);
-    if (obsScroller) keepScrollerAtBottom();
+    messageViewScroller = applyMessageView();
+    setMessageViewScroller(messageViewScroller);
+    if (messageViewScroller) keepScrollerAtBottom();
     updateJumpLatestButton();
   }
 
-  function scheduleObsSync(delay = 160) {
-    if (obsTimer) return;
-    obsTimer = window.setTimeout(() => {
-      obsTimer = 0;
-      syncObsMode();
+  function scheduleMessageViewSync(delay = 160) {
+    if (messageViewTimer) return;
+    messageViewTimer = window.setTimeout(() => {
+      messageViewTimer = 0;
+      syncMessageView();
     }, delay);
   }
 
-  function startObsSync() {
-    stopObsSync();
+  function startMessageViewSync() {
+    stopMessageViewSync();
     // The layout may not have settled right after the chat is moved into the
     // panel; retry a few times if measurements come back as zero.
-    syncObsMode();
+    syncMessageView();
     for (const delay of [80, 220, 480, 1000]) {
       window.setTimeout(() => {
-        if (active) syncObsMode();
+        if (active) syncMessageView();
       }, delay);
     }
     if (!chat) return;
 
-    obsObserver = new MutationObserver((records) => {
+    messageViewObserver = new MutationObserver((records) => {
       if (!active) return;
-      if (!obsScroller || !obsScroller.isConnected) {
-        scheduleObsSync(120);
+      if (!messageViewScroller || !messageViewScroller.isConnected) {
+        scheduleMessageViewSync(120);
         return;
       }
       for (const record of records) {
-        if (obsScroller.contains(record.target)) continue;
-        scheduleObsSync();
+        if (messageViewScroller.contains(record.target)) continue;
+        scheduleMessageViewSync();
         return;
       }
 
@@ -920,20 +905,20 @@
         updateJumpLatestButton();
       });
     });
-    obsObserver.observe(chat, { childList: true, subtree: true });
+    messageViewObserver.observe(chat, { childList: true, subtree: true });
   }
 
-  function stopObsSync() {
-    if (obsObserver) {
-      obsObserver.disconnect();
-      obsObserver = null;
+  function stopMessageViewSync() {
+    if (messageViewObserver) {
+      messageViewObserver.disconnect();
+      messageViewObserver = null;
     }
-    if (obsTimer) {
-      window.clearTimeout(obsTimer);
-      obsTimer = 0;
+    if (messageViewTimer) {
+      window.clearTimeout(messageViewTimer);
+      messageViewTimer = 0;
     }
-    obsScroller = null;
-    setObsScroller(null);
+    messageViewScroller = null;
+    setMessageViewScroller(null);
   }
 
   // -------------------------------------------------------------- geometry
@@ -1203,7 +1188,7 @@
     geom = computeGeometry();
     applyGeometryNow();
     applyAppearance();
-    startObsSync();
+    startMessageViewSync();
     refreshChatLayout();
     hidePill();
     showUi(true);
@@ -1393,24 +1378,13 @@
     }
 
     if (active) {
-      if (previous.obsMode !== settings.obsMode) {
-        if (settings.obsMode) startObsSync();
-        else {
-          stopObsSync();
-          clearObsMode();
-        }
-      }
       if (previous.blur !== settings.blur) {
         applyAppearance();
       }
       if (previous.shadow !== settings.shadow) {
         applyAppearance();
       }
-      if (
-        previous.shadow !== settings.shadow ||
-        previous.obsMode !== settings.obsMode ||
-        previous.pinned !== settings.pinned
-      ) {
+      if (previous.shadow !== settings.shadow || previous.pinned !== settings.pinned) {
         syncSettingsMenu();
       }
     }

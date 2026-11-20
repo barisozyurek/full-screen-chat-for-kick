@@ -1,137 +1,137 @@
 # Full-Screen Chat for Kick
 
-A lightweight Chromium extension for Microsoft Edge and Google Chrome that keeps Kick.com chat visible while watching a stream in full-screen mode.
+A lightweight Manifest V3 extension that keeps Kick's live chat visible above the video while watching in full-screen mode.
 
-The extension moves Kick's existing chat element into a movable panel above the video. It does not create an iframe or a second chat connection.
+Instead of duplicating the chat in an iframe or opening a second connection, the extension relocates Kick's existing chat element into a floating overlay. The original DOM, attributes, and layout are restored when full-screen mode ends, so the active chat session and account state are preserved.
+
+## Browser Support
+
+The extension targets **Chromium 110 or newer** and uses the Manifest V3 extension API.
+
+| Browser | Support |
+|---|---|
+| Google Chrome | Supported (version 110+) |
+| Microsoft Edge | Supported (version 110+) |
+| Brave, Opera, Vivaldi, and other Chromium-based browsers | Generally supported when Chrome-style extensions and Manifest V3 are available |
+| Firefox, Safari | Not supported — different extension APIs |
+
+Availability in Chromium-based browsers other than Chrome and Edge depends on that browser's extension policy and version. The manifest declares `"manifest_version": 3` and `"minimum_chrome_version": "110"`.
+
+The content script is scoped to `https://kick.com/*` and `https://*.kick.com/*`.
 
 ## Features
 
-- Uses the existing Kick chat session and moderation state.
-- Displays chat above the full-screen video player.
-- Moves and snaps the chat panel by dragging.
-- Resizes from the bottom-left and bottom-right corners.
-- Pins the chat to prevent dragging and resizing.
-- Provides a compact settings menu directly inside full-screen mode.
-- Supports a messages-only view.
-- Adds a configurable text shadow for readability.
-- Applies an adjustable background blur from `0` to `100`.
-- Saves panel position and size locally.
-- Restores all settings to their defaults from the extension popup.
-- Does not run a background service or make network requests.
-
-## Controls
-
-| Action | Method |
-|---|---|
-| Toggle the chat panel | Press **Alt+K** |
-| Move the panel | Hover over the panel and drag the grip |
-| Move with the keyboard shortcut | Hold **Alt** and drag anywhere inside the chat |
-| Resize the panel | Drag the bottom-left or bottom-right handle |
-| Reset the panel position and size | Double-click the grip or a resize handle |
-| Pin the chat | Click the pin button |
-| Change full-screen settings | Click the settings button |
-| Close the panel | Click the close button or press **Alt+K** |
-
-The grip, pin, settings, close, and resize controls appear only while the mouse is over the chat panel.
-
-When pinning is enabled:
-
-- Dragging is disabled.
-- Alt-dragging is disabled.
-- Resizing handles are hidden.
-- The pin button stays active until it is toggled off.
-
-## Full-Screen Settings
-
-The settings button in the full-screen chat toolbar opens a compact menu with:
-
-- **Background blur** — `0` is fully transparent; `100` applies the strongest supported blur.
-- **Messages only** — hides Kick's chat header, composer, notification banners, and promotional elements.
-- **Text shadow** — improves readability over bright video scenes.
-
-## Popup Settings
-
-The extension popup contains:
-
-- **Extension enabled**
-- **Open automatically in fullscreen**
-- **Messages only**
-- **Text shadow**
-- **Background blur**
-- **Restore default settings**
-
-Restore default settings resets all options and panel geometry, including:
-
-- Extension enabled
-- Automatic full-screen opening
-- Messages-only mode
-- Text shadow
-- Background blur
-- Pin state
-- Panel position and size
-
-Settings are stored with `chrome.storage.local`.
+- Reuses the existing Kick chat connection, identity, and moderation state.
+- Places the chat directly over the full-screen video player.
+- Hides Kick's chat header, composer, notification banners, and promotional elements while the overlay is active.
+- Keeps the viewer at the latest message automatically; shows a compact **jump-to-latest** control when scrolling back through history.
+- Suppresses reply-thread and user-profile pop-ups that would otherwise open outside the full-screen player.
+- Supports dragging, edge snapping, and resizing from either bottom corner.
+- Provides a compact in-panel settings menu and a separate browser-action popup.
+- Includes an adjustable background blur and optional text shadow for readability over bright scenes.
+- Saves panel geometry and preferences locally, and restores them on the next session.
+- Requires no background service, build step, or network requests.
 
 ## Installation
 
-### Microsoft Edge
+### Load as an unpacked extension
 
-1. Open `edge://extensions`.
+1. Open the extensions page in your browser:
+   - Chrome and Chromium: `chrome://extensions`
+   - Microsoft Edge: `edge://extensions`
 2. Enable **Developer mode**.
 3. Select **Load unpacked**.
-4. Choose this project folder.
+4. Choose the root folder of this repository — the folder that contains `manifest.json`.
 
-### Google Chrome
+After changing source files, return to the extensions page and select **Reload** on the extension card.
 
-1. Open `chrome://extensions`.
-2. Enable **Developer mode**.
-3. Select **Load unpacked**.
-4. Choose this project folder.
+## Usage
 
-After source changes, use the extension page's **Reload** button.
+Enter full-screen mode on a Kick stream. If **Open automatically in fullscreen** is enabled, the chat overlay appears without any additional action.
+
+| Action | Method |
+|---|---|
+| Show or hide the overlay | Press **Alt+K** |
+| Move the panel | Hover over it and drag the grip in the top-left corner |
+| Move without the grip | Hold **Alt** and drag anywhere in the chat |
+| Resize the panel | Drag the bottom-left or bottom-right handle |
+| Reset position and size | Double-click the grip or a resize handle |
+| Pin the panel | Select the pin button |
+| Return to the newest message | Select the down-arrow button at the bottom center |
+| Close the overlay | Select the close button or press **Alt+K** |
+
+The grip, pin, settings, close, and resize handles appear only while the pointer is over the panel. While pinned, dragging, Alt-dragging, and resizing are disabled until the panel is unpinned.
+
+When the viewer scrolls away from the newest message, automatic following pauses so older messages can be read. Selecting the down-arrow button returns to the live end of the chat and resumes automatic following.
+
+## Settings
+
+### In-full-screen menu
+
+Opened with the settings button in the panel's top-left toolbar:
+
+- **Background blur** — `0` disables the effect; `100` applies the strongest supported blur to the stream behind the chat.
+- **Text shadow** — improves message contrast over bright video.
+
+### Browser-action popup
+
+Opened from the extension icon in the browser toolbar:
+
+- **Extension enabled** — turns all overlay behavior on or off.
+- **Open automatically in fullscreen** — controls whether the overlay appears as soon as full-screen mode starts.
+- **Text shadow** and **Background blur** — mirror the in-panel controls.
+- **Restore default settings** — resets preferences, panel geometry, and pin state.
+
+All preferences are stored with `chrome.storage.local`.
 
 ## How It Works
 
-1. The content script detects a full-screen player element.
-2. It locates Kick's existing chat element.
-3. It moves that element into a DOM panel above the full-screen player.
-4. Full-screen-only styles hide Kick's non-message chrome and make the chat backdrop transparent.
-5. A fixed scrim and optional `backdrop-filter` remain behind the chat to improve readability.
-6. The panel geometry is saved locally.
-7. On leaving full-screen mode, the chat element and all temporary DOM changes are restored.
+1. The content script watches for a full-screen player element on Kick.
+2. It locates Kick's existing chat root node.
+3. That node is moved into a transparent, fixed-position panel above the player.
+4. Full-screen-only styles hide non-message chrome and remove chat backgrounds.
+5. A scrim and optional `backdrop-filter` keep messages readable over the stream.
+6. Layout observers resynchronize the message list after full-screen transitions, resizes, and React re-renders.
+7. On exit, the chat node and any modified attributes are restored to their original state.
 
-No chat is copied or recreated. The existing Kick connection remains active.
+No second chat client, iframe, or network connection is created.
+
+## Project Structure
+
+```text
+manifest.json       Extension manifest and permissions
+src/content.js      Overlay lifecycle, controls, message view, and settings
+src/content.css     Full-screen overlay styles
+src/popup.html      Browser-action popup markup
+src/popup.css       Popup styles
+src/popup.js        Popup state and restore behavior
+icons/              Extension icons
+tools/gen-icons.mjs Optional icon generator
+```
 
 ## Development
 
-The extension has no build step or runtime dependencies. Load the source directory directly as an unpacked extension.
+There is no build step or runtime dependency. Load the repository root directly as an unpacked extension and reload it from the browser's extensions page after edits.
 
-```text
-manifest.json       Extension manifest
-src/content.js      Full-screen panel, controls, dragging, resizing, and settings
-src/content.css     Panel styling and full-screen behavior
-src/popup.html      Popup markup
-src/popup.css       Popup styling
-src/popup.js        Popup settings and restore behavior
-icons/              Extension icons
-tools/gen-icons.mjs Icon generator
+Icons can be regenerated with:
+
+```bash
+npm run icons
 ```
 
 ## Packaging
 
-Package these directories and files:
+Include only the files required at runtime:
 
 - `manifest.json`
 - `src/`
 - `icons/`
 
-Do not include `tools/`, `node_modules/`, or development-only files in the packaged extension.
+Exclude `tools/`, development files, and repository metadata from release archives.
 
-## Privacy
+## Privacy and Permissions
 
-The extension makes no network requests and uses no analytics or tracking. The only persisted data is the local chat panel and appearance settings stored on the user's device.
-
-It does not access the Kick account, capture chat content, or transmit stream data.
+The only requested permission is `storage`, used to save local preferences and panel geometry. The extension has no background service, performs no analytics or tracking, and makes no network requests. It does not read or transmit account data, chat history, or stream information.
 
 ## License
 
