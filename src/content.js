@@ -111,6 +111,7 @@
 
   let uiTimer = 0;
   let uiHideTimer = 0;
+  let settingsResetTimer = 0;
   let lastPointerAt = 0;
 
   let isDragging = false;
@@ -417,6 +418,10 @@
       clearTimeout(uiHideTimer);
       uiHideTimer = 0;
     }
+    if (settingsResetTimer) {
+      clearTimeout(settingsResetTimer);
+      settingsResetTimer = 0;
+    }
     flushPersist();
 
     if (panel) {
@@ -502,6 +507,7 @@
         <span>Text shadow</span>
         <input data-fscfk-shadow type="checkbox">
       </label>
+      <button class="fscfk-setting-reset" type="button">Restore defaults</button>
     `;
 
     tools.append(grab, pin, settingsButton, close, settingsMenu);
@@ -570,6 +576,25 @@
       settings.shadow = event.target.checked;
       applyAppearance();
       persist();
+    });
+
+    const resetSettings = panel.querySelector('.fscfk-setting-reset');
+    resetSettings.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      settings = normalize({ ...DEFAULTS, panel: settings.panel });
+      applyAppearance();
+      syncSettingsMenu();
+      persist();
+
+      resetSettings.textContent = 'Defaults restored';
+      resetSettings.classList.add('is-done');
+      window.clearTimeout(settingsResetTimer);
+      settingsResetTimer = window.setTimeout(() => {
+        resetSettings.textContent = 'Restore defaults';
+        resetSettings.classList.remove('is-done');
+        settingsResetTimer = 0;
+      }, 1400);
     });
 
     close.addEventListener('click', (event) => {

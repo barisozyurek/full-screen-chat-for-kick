@@ -73,6 +73,7 @@ Opened with the settings button in the panel's top-left toolbar:
 - **Background blur** — `0` disables the effect; `100` applies the strongest supported blur to the stream behind the chat.
 - **Corner rounding** — `0` keeps square corners; higher values round the panel and both resize grips together.
 - **Text shadow** — improves message contrast over bright video.
+- **Restore defaults** — resets every preference except the panel's size and position.
 
 ### Browser-action popup
 
