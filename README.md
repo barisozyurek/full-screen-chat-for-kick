@@ -26,7 +26,7 @@ The content script is scoped to `https://kick.com/*` and `https://*.kick.com/*`.
 - Hides Kick's chat header, composer, notification banners, and promotional elements while the overlay is active.
 - Keeps the viewer at the latest message automatically; shows a compact **jump-to-latest** control when scrolling back through history.
 - Suppresses reply-thread and user-profile pop-ups that would otherwise open outside the full-screen player.
-- Supports dragging, edge snapping, and resizing from either bottom corner; the resize grips follow the selected corner rounding.
+- Supports dragging, edge snapping, and resizing from any edge or corner; the resize grips follow the selected corner rounding.
 - Provides a compact in-panel settings menu and a separate browser-action popup.
 - Includes adjustable background blur, corner rounding, and an optional text shadow for readability over bright scenes.
 - Saves panel geometry and preferences locally, and restores them on the next session.

@@ -512,20 +512,30 @@
 
     tools.append(grab, pin, settingsButton, close, settingsMenu);
 
-    const resizeSw = make('div', 'fscfk-resize fscfk-resize-sw');
-    resizeSw.dataset.dir = 'sw';
-    resizeSw.title = 'Resize (bottom-left corner)';
-
-    const resizeSe = make('div', 'fscfk-resize fscfk-resize-se');
-    resizeSe.dataset.dir = 'se';
-    resizeSe.title = 'Resize (bottom-right corner)';
+    const resizeHandles = [
+      ['nw', 'Resize from top-left corner'],
+      ['n', 'Resize from top'],
+      ['ne', 'Resize from top-right corner'],
+      ['e', 'Resize from right'],
+      ['se', 'Resize from bottom-right corner'],
+      ['s', 'Resize from bottom'],
+      ['sw', 'Resize from bottom-left corner'],
+      ['w', 'Resize from left'],
+    ].map(([dir, label]) => {
+      const handle = make('button', `fscfk-resize fscfk-resize-${dir}`, { type: 'button' });
+      handle.dataset.dir = dir;
+      handle.tabIndex = -1;
+      handle.title = label;
+      handle.setAttribute('aria-label', label);
+      return handle;
+    });
 
     const jumpToLatest = make('button', 'fscfk-jump-latest', { type: 'button' });
     jumpToLatest.hidden = true;
     jumpToLatest.setAttribute('aria-label', 'Jump to latest message');
     jumpToLatest.appendChild(makeIcon('down', 16));
 
-    panel.append(scrim, chatHost, tools, jumpToLatest, resizeSw, resizeSe);
+    panel.append(scrim, chatHost, tools, jumpToLatest, ...resizeHandles);
   }
 
   function bindPanel() {
@@ -1007,6 +1017,65 @@
     };
   }
 
+  function resizeFrom(dir, start, dx, dy, vw, vh) {
+    const next = { ...start };
+    const right = Math.min(start.x + start.w, vw);
+    const bottom = Math.min(start.y + start.h, vh);
+
+    const fromLeft = () => {
+      const max = Math.max(0, vw - start.x);
+      next.w = Math.round(clamp(start.w + dx, Math.min(MIN_W, max), max));
+    };
+    const fromRight = () => {
+      const max = Math.max(0, right);
+      const width = clamp(start.w - dx, Math.min(MIN_W, max), max);
+      next.w = Math.round(width);
+      next.x = Math.round(right - next.w);
+    };
+    const fromTop = () => {
+      const max = Math.max(0, vh - start.y);
+      next.h = Math.round(clamp(start.h + dy, Math.min(MIN_H, max), max));
+    };
+    const fromBottom = () => {
+      const max = Math.max(0, bottom);
+      const height = clamp(start.h - dy, Math.min(MIN_H, max), max);
+      next.h = Math.round(height);
+      next.y = Math.round(bottom - next.h);
+    };
+
+    switch (dir) {
+      case 'n':
+        fromBottom();
+        break;
+      case 's':
+        fromTop();
+        break;
+      case 'w':
+        fromRight();
+        break;
+      case 'e':
+        fromLeft();
+        break;
+      case 'ne':
+        fromLeft();
+        fromBottom();
+        break;
+      case 'sw':
+        fromRight();
+        fromTop();
+        break;
+      case 'se':
+        fromLeft();
+        fromTop();
+        break;
+      default:
+        fromLeft();
+        fromTop();
+    }
+
+    return { ...fitPosition(next.x, next.y, next.w, next.h, vw, vh), w: next.w, h: next.h };
+  }
+
   function computeGeometry() {
     const { w: vw, h: vh } = viewportSize();
     const saved = settings.panel;
@@ -1194,7 +1263,7 @@
     event.stopPropagation();
 
     const handle = event.currentTarget;
-    const dir = handle.dataset.dir === 'se' ? 'se' : 'sw';
+    const dir = handle.dataset.dir || 'se';
     const start = { ...geom };
     const startX = event.clientX;
     const startY = event.clientY;
@@ -1207,30 +1276,19 @@
     markDragging(true);
 
     const onMove = (moveEvent) => {
-      const dx = moveEvent.clientX - startX;
-      const dy = moveEvent.clientY - startY;
       const { w: vw, h: vh } = viewportSize();
-      const right = Math.min(start.x + start.w, vw);
-
-      if (dir === 'se') {
-        const maxW = Math.max(0, vw - start.x);
-        const minW = Math.min(MIN_W, maxW);
-        geom.w = Math.round(clamp(start.w + dx, minW, maxW));
-      } else {
-        const maxW = Math.max(0, right);
-        const minW = Math.min(MIN_W, maxW);
-        const width = clamp(start.w - dx, minW, maxW);
-        geom.w = Math.round(width);
-        geom.x = Math.round(right - width);
-      }
-
-      const maxH = Math.max(0, vh - start.y);
-      const minH = Math.min(MIN_H, maxH);
-      geom.h = Math.round(clamp(start.h + dy, minH, maxH));
-
-      const fitted = fitPosition(geom.x, geom.y, geom.w, geom.h, vw, vh);
-      geom.x = fitted.x;
-      geom.y = fitted.y;
+      const next = resizeFrom(
+        dir,
+        start,
+        moveEvent.clientX - startX,
+        moveEvent.clientY - startY,
+        vw,
+        vh
+      );
+      geom.x = next.x;
+      geom.y = next.y;
+      geom.w = next.w;
+      geom.h = next.h;
       scheduleGeometry();
     };
 

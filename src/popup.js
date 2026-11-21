@@ -23,6 +23,7 @@ const el = {
   radius: document.getElementById('radius'),
   radiusOut: document.getElementById('radiusOut'),
   masterSub: document.getElementById('masterSub'),
+  version: document.getElementById('version'),
   reset: document.getElementById('reset'),
 };
 
@@ -63,6 +64,14 @@ function normalize(raw) {
 
 function paintRange(input, ratio) {
   input.style.setProperty('--fill', `${clamp(ratio, 0, 1) * 100}%`);
+}
+
+function renderVersion() {
+  try {
+    el.version.textContent = chrome.runtime.getManifest().version || '';
+  } catch {
+    el.version.textContent = '';
+  }
 }
 
 function render() {
@@ -162,6 +171,7 @@ async function init() {
   } catch {
     state = { ...DEFAULTS };
   }
+  renderVersion();
   render();
   bind();
 }
