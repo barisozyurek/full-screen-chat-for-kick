@@ -26,12 +26,14 @@
     autoOpen: true,
     shadow: true,
     blur: 14,
+    cornerRadius: 0,
     pinned: false,
     panel: null,
   });
 
   const MAX_BLUR = 100;
   const MAX_BLUR_PX = 30;
+  const MAX_CORNER_RADIUS = 24;
 
   const MIN_W = 280;
   const MIN_H = 220;
@@ -182,6 +184,7 @@
       autoOpen: input.autoOpen ?? DEFAULTS.autoOpen,
       shadow: input.shadow ?? DEFAULTS.shadow,
       blur: input.blur ?? DEFAULTS.blur,
+      cornerRadius: input.cornerRadius ?? DEFAULTS.cornerRadius,
       pinned: input.pinned ?? DEFAULTS.pinned,
       panel: input.panel ?? DEFAULTS.panel,
     };
@@ -190,6 +193,11 @@
     next.shadow = next.shadow !== false;
     next.pinned = next.pinned === true;
     next.blur = clamp(Math.round(Number(next.blur ?? DEFAULTS.blur) || 0), 0, MAX_BLUR);
+    next.cornerRadius = clamp(
+      Math.round(Number(next.cornerRadius ?? DEFAULTS.cornerRadius) || 0),
+      0,
+      MAX_CORNER_RADIUS
+    );
 
     const p = next.panel;
     if (
@@ -484,6 +492,11 @@
         <output data-fscfk-blur-output>14</output>
         <input data-fscfk-blur type="range" min="0" max="100" step="1" value="14">
       </label>
+      <label class="fscfk-setting">
+        <span>Corner rounding</span>
+        <output data-fscfk-radius-output>0</output>
+        <input data-fscfk-radius type="range" min="0" max="24" step="1" value="0">
+      </label>
       <label class="fscfk-setting fscfk-setting-toggle">
         <span>Text shadow</span>
         <input data-fscfk-shadow type="checkbox">
@@ -543,6 +556,12 @@
     panel.querySelector('[data-fscfk-blur]').addEventListener('input', (event) => {
       settings.blur = Number(event.target.value);
       panel.querySelector('[data-fscfk-blur-output]').textContent = String(settings.blur);
+      applyAppearance();
+      persist();
+    });
+    panel.querySelector('[data-fscfk-radius]').addEventListener('input', (event) => {
+      settings.cornerRadius = Number(event.target.value);
+      panel.querySelector('[data-fscfk-radius-output]').textContent = String(settings.cornerRadius);
       applyAppearance();
       persist();
     });
@@ -645,6 +664,13 @@
   function applyAppearance() {
     if (!panel) return;
     panel.classList.toggle('fscfk-shadow', settings.shadow);
+
+    const handleInset = Number((4 + Math.min(settings.cornerRadius * 0.4, 8)).toFixed(1));
+    const handleRadius = Math.min(settings.cornerRadius, 8);
+    panel.style.setProperty('--fscfk-radius', `${settings.cornerRadius}px`);
+    panel.style.setProperty('--fscfk-handle-inset', `${handleInset}px`);
+    panel.style.setProperty('--fscfk-handle-radius', `${handleRadius}px`);
+
     panel.classList.toggle('fscfk-blur', settings.blur > 0);
     if (settings.blur > 0) {
       const ratio = settings.blur / MAX_BLUR;
@@ -681,9 +707,13 @@
     if (!panel) return;
     const blur = panel.querySelector('[data-fscfk-blur]');
     const blurOutput = panel.querySelector('[data-fscfk-blur-output]');
+    const radius = panel.querySelector('[data-fscfk-radius]');
+    const radiusOutput = panel.querySelector('[data-fscfk-radius-output]');
     const shadow = panel.querySelector('[data-fscfk-shadow]');
     if (blur) blur.value = String(settings.blur);
     if (blurOutput) blurOutput.textContent = String(settings.blur);
+    if (radius) radius.value = String(settings.cornerRadius);
+    if (radiusOutput) radiusOutput.textContent = String(settings.cornerRadius);
     if (shadow) shadow.checked = settings.shadow;
     applyPinState();
   }
@@ -1383,13 +1413,19 @@
     }
 
     if (active) {
-      if (previous.blur !== settings.blur) {
+      if (
+        previous.blur !== settings.blur ||
+        previous.shadow !== settings.shadow ||
+        previous.cornerRadius !== settings.cornerRadius
+      ) {
         applyAppearance();
       }
-      if (previous.shadow !== settings.shadow) {
-        applyAppearance();
-      }
-      if (previous.shadow !== settings.shadow || previous.pinned !== settings.pinned) {
+      if (
+        previous.blur !== settings.blur ||
+        previous.shadow !== settings.shadow ||
+        previous.cornerRadius !== settings.cornerRadius ||
+        previous.pinned !== settings.pinned
+      ) {
         syncSettingsMenu();
       }
     }

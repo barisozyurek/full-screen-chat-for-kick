@@ -26,9 +26,9 @@ The content script is scoped to `https://kick.com/*` and `https://*.kick.com/*`.
 - Hides Kick's chat header, composer, notification banners, and promotional elements while the overlay is active.
 - Keeps the viewer at the latest message automatically; shows a compact **jump-to-latest** control when scrolling back through history.
 - Suppresses reply-thread and user-profile pop-ups that would otherwise open outside the full-screen player.
-- Supports dragging, edge snapping, and resizing from either bottom corner.
+- Supports dragging, edge snapping, and resizing from either bottom corner; the resize grips follow the selected corner rounding.
 - Provides a compact in-panel settings menu and a separate browser-action popup.
-- Includes an adjustable background blur and optional text shadow for readability over bright scenes.
+- Includes adjustable background blur, corner rounding, and an optional text shadow for readability over bright scenes.
 - Saves panel geometry and preferences locally, and restores them on the next session.
 - Requires no background service, build step, or network requests.
 
@@ -71,6 +71,7 @@ When the viewer scrolls away from the newest message, automatic following pauses
 Opened with the settings button in the panel's top-left toolbar:
 
 - **Background blur** — `0` disables the effect; `100` applies the strongest supported blur to the stream behind the chat.
+- **Corner rounding** — `0` keeps square corners; higher values round the panel and both resize grips together.
 - **Text shadow** — improves message contrast over bright video.
 
 ### Browser-action popup
@@ -79,7 +80,7 @@ Opened from the extension icon in the browser toolbar:
 
 - **Extension enabled** — turns all overlay behavior on or off.
 - **Open automatically in fullscreen** — controls whether the overlay appears as soon as full-screen mode starts.
-- **Text shadow** and **Background blur** — mirror the in-panel controls.
+- **Text shadow**, **Background blur**, and **Corner rounding** — mirror the in-panel controls.
 - **Restore default settings** — resets preferences, panel geometry, and pin state.
 
 All preferences are stored with `chrome.storage.local`.

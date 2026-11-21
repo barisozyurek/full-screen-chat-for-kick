@@ -11,7 +11,7 @@
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  border-radius: 12px;
+  border-radius: var(--fscfk-radius, 0px);
   background: none;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
@@ -32,6 +32,7 @@
 }
 
 /* Backdrop: not a flat color, but a blurred copy of the video.
+   --fscfk-radius   : panel and scrim corner radius
    --fscfk-blur     : blur radius in px, scaled from the setting
    --fscfk-saturate : saturation multiplier, scaled from the setting
    --fscfk-tint     : dark veil opacity, scaled from the setting */
@@ -39,7 +40,7 @@
   position: absolute;
   inset: 0;
   z-index: 0;
-  border-radius: 12px;
+  border-radius: var(--fscfk-radius, 0px);
   background: rgba(9, 11, 15, var(--fscfk-tint, 0.3));
   pointer-events: none;
 }
@@ -111,6 +112,8 @@
   flex: 1 1 auto !important;
   min-height: 0 !important;
   overflow-y: auto !important;
+  padding-left: 6px !important;
+  padding-right: 6px !important;
 }
 
 /* Let the video show through: clear every background and border in Kick's
@@ -386,19 +389,19 @@
 }
 
 .fscfk-resize-sw::after {
-  bottom: 4px;
-  left: 4px;
+  bottom: var(--fscfk-handle-inset, 4px);
+  left: var(--fscfk-handle-inset, 4px);
   border-left-width: 1.5px;
   border-bottom-width: 1.5px;
-  border-bottom-left-radius: 2px;
+  border-bottom-left-radius: var(--fscfk-handle-radius, 0px);
 }
 
 .fscfk-resize-se::after {
-  right: 4px;
-  bottom: 4px;
+  right: var(--fscfk-handle-inset, 4px);
+  bottom: var(--fscfk-handle-inset, 4px);
   border-right-width: 1.5px;
   border-bottom-width: 1.5px;
-  border-bottom-right-radius: 2px;
+  border-bottom-right-radius: var(--fscfk-handle-radius, 0px);
 }
 
 .fscfk-resize:hover::after {
