@@ -37,7 +37,8 @@
 
   const MIN_W = 280;
   const MIN_H = 220;
-  const EDGE = 8;
+  const MAX_W = 720;
+  const MAX_H = 760;
   const SNAP = 22;
 
   const CHAT_SELECTORS = [
@@ -958,24 +959,43 @@
 
   // -------------------------------------------------------------- geometry
 
+  function viewportSize() {
+    return { w: Math.max(0, window.innerWidth), h: Math.max(0, window.innerHeight) };
+  }
+
+  function fitWidth(width, vw) {
+    const max = Math.max(0, Math.min(MAX_W, vw));
+    const min = Math.min(MIN_W, max);
+    return Math.round(clamp(width, min, max));
+  }
+
+  function fitHeight(height, vh) {
+    const max = Math.max(0, vh);
+    const min = Math.min(MIN_H, max);
+    return Math.round(clamp(height, min, max));
+  }
+
+  function fitPosition(x, y, w, h, vw, vh) {
+    return {
+      x: Math.round(clamp(x, 0, Math.max(0, vw - w))),
+      y: Math.round(clamp(y, 0, Math.max(0, vh - h))),
+    };
+  }
+
   function computeGeometry() {
-    const vw = Math.max(320, window.innerWidth);
-    const vh = Math.max(240, window.innerHeight);
+    const { w: vw, h: vh } = viewportSize();
     const saved = settings.panel;
 
     let w = saved ? saved.w : 360;
-    let h = saved ? saved.h * vh : Math.min(vh * 0.82, 760);
+    let h = saved ? saved.h * vh : Math.min(vh * 0.82, MAX_H);
 
-    w = clamp(w, MIN_W, Math.max(MIN_W, Math.min(720, vw - EDGE * 2)));
-    h = clamp(h, MIN_H, Math.max(MIN_H, vh - EDGE * 2));
+    w = fitWidth(w, vw);
+    h = fitHeight(h, vh);
 
-    let x = saved ? saved.x * vw : vw - w - 20;
-    let y = saved ? saved.y * vh : (vh - h) / 2;
+    const x = saved ? saved.x * vw : vw - w - 20;
+    const y = saved ? saved.y * vh : (vh - h) / 2;
 
-    x = clamp(x, EDGE, Math.max(EDGE, vw - w - EDGE));
-    y = clamp(y, EDGE, Math.max(EDGE, vh - h - EDGE));
-
-    return { x: Math.round(x), y: Math.round(y), w: Math.round(w), h: Math.round(h) };
+    return { ...fitPosition(x, y, w, h, vw, vh), w, h };
   }
 
   function applyGeometryNow() {
@@ -1099,8 +1119,10 @@
       const dy = moveEvent.clientY - startY;
       if (!moved && Math.abs(dx) + Math.abs(dy) < 3) return;
       moved = true;
-      geom.x = clamp(start.x + dx, EDGE, Math.max(EDGE, window.innerWidth - geom.w - EDGE));
-      geom.y = clamp(start.y + dy, EDGE, Math.max(EDGE, window.innerHeight - geom.h - EDGE));
+      const { w: vw, h: vh } = viewportSize();
+      const next = fitPosition(start.x + dx, start.y + dy, geom.w, geom.h, vw, vh);
+      geom.x = next.x;
+      geom.y = next.y;
       scheduleGeometry();
     };
 
@@ -1115,13 +1137,21 @@
       // link is not opened by accident).
       suppressClickUntil = performance.now() + 250;
 
-      // Soft snap to the edges.
+      // Soft snap to all four edges, including exact flush placement.
+      const { w: vw, h: vh } = viewportSize();
       if (geom.x <= SNAP) {
-        geom.x = EDGE;
-      } else if (geom.x + geom.w >= window.innerWidth - SNAP) {
-        geom.x = window.innerWidth - geom.w - EDGE;
+        geom.x = 0;
+      } else if (geom.x + geom.w >= vw - SNAP) {
+        geom.x = Math.max(0, vw - geom.w);
       }
-      geom.y = clamp(geom.y, EDGE, Math.max(EDGE, window.innerHeight - geom.h - EDGE));
+      if (geom.y <= SNAP) {
+        geom.y = 0;
+      } else if (geom.y + geom.h >= vh - SNAP) {
+        geom.y = Math.max(0, vh - geom.h);
+      }
+      const fitted = fitPosition(geom.x, geom.y, geom.w, geom.h, vw, vh);
+      geom.x = fitted.x;
+      geom.y = fitted.y;
       applyGeometryNow();
       saveGeometry();
       refreshChatLayout();
@@ -1154,21 +1184,28 @@
     const onMove = (moveEvent) => {
       const dx = moveEvent.clientX - startX;
       const dy = moveEvent.clientY - startY;
-      const right = start.x + start.w;
+      const { w: vw, h: vh } = viewportSize();
+      const right = Math.min(start.x + start.w, vw);
 
       if (dir === 'se') {
-        const maxW = Math.max(MIN_W, window.innerWidth - start.x - EDGE);
-        geom.w = Math.round(clamp(start.w + dx, MIN_W, maxW));
+        const maxW = Math.max(0, vw - start.x);
+        const minW = Math.min(MIN_W, maxW);
+        geom.w = Math.round(clamp(start.w + dx, minW, maxW));
       } else {
-        const maxW = Math.max(MIN_W, right - EDGE);
-        const width = clamp(start.w - dx, MIN_W, maxW);
+        const maxW = Math.max(0, right);
+        const minW = Math.min(MIN_W, maxW);
+        const width = clamp(start.w - dx, minW, maxW);
         geom.w = Math.round(width);
         geom.x = Math.round(right - width);
       }
 
-      geom.h = Math.round(
-        clamp(start.h + dy, MIN_H, Math.max(MIN_H, window.innerHeight - start.y - EDGE))
-      );
+      const maxH = Math.max(0, vh - start.y);
+      const minH = Math.min(MIN_H, maxH);
+      geom.h = Math.round(clamp(start.h + dy, minH, maxH));
+
+      const fitted = fitPosition(geom.x, geom.y, geom.w, geom.h, vw, vh);
+      geom.x = fitted.x;
+      geom.y = fitted.y;
       scheduleGeometry();
     };
 
@@ -1388,10 +1425,12 @@
 
   function onWindowResize() {
     if (!active || !geom) return;
-    geom.w = Math.min(geom.w, window.innerWidth - EDGE * 2);
-    geom.h = Math.min(geom.h, window.innerHeight - EDGE * 2);
-    geom.x = clamp(geom.x, EDGE, Math.max(EDGE, window.innerWidth - geom.w - EDGE));
-    geom.y = clamp(geom.y, EDGE, Math.max(EDGE, window.innerHeight - geom.h - EDGE));
+    const { w: vw, h: vh } = viewportSize();
+    geom.w = fitWidth(geom.w, vw);
+    geom.h = fitHeight(geom.h, vh);
+    const fitted = fitPosition(geom.x, geom.y, geom.w, geom.h, vw, vh);
+    geom.x = fitted.x;
+    geom.y = fitted.y;
     applyGeometryNow();
     refreshChatLayout();
   }
