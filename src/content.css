@@ -100,6 +100,8 @@
   max-height: none !important;
   min-width: 0 !important;
   min-height: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
   /* Kick fades the chat out (`group-data-[chat=false]/main:opacity-0`) when its
      own React state briefly says chat is hidden. The overlay always shows it. */
   opacity: 1 !important;
@@ -112,8 +114,14 @@
   flex: 1 1 auto !important;
   min-height: 0 !important;
   overflow-y: auto !important;
-  padding-left: 6px !important;
-  padding-right: 6px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Kick also pads individual message rows; keep them flush with the panel edges. */
+.fscfk-chat-host .fscfk-scroller > * {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 /* Let the video show through: clear every background and border in Kick's
