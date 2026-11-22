@@ -52,15 +52,15 @@ Enter full-screen mode on a Kick stream. If **Open automatically in fullscreen**
 | Action | Method |
 |---|---|
 | Show or hide the overlay | Press **Alt+K** |
-| Move the panel | Hover over it and drag the grip in the top-left corner |
+| Move the panel | Hover over it and drag the grip at the top center |
 | Move without the grip | Hold **Alt** and drag anywhere in the chat |
-| Resize the panel | Drag the bottom-left or bottom-right handle |
+| Resize the panel | Drag any edge or corner handle |
 | Reset position and size | Double-click the grip or a resize handle |
 | Pin the panel | Select the pin button |
 | Return to the newest message | Select the down-arrow button at the bottom center |
 | Close the overlay | Select the close button or press **Alt+K** |
 
-The grip, pin, settings, close, and resize handles appear only while the pointer is over the panel. While pinned, dragging, Alt-dragging, and resizing are disabled until the panel is unpinned.
+The grip, pin, settings, close, and resize handles appear while the pointer is over the panel or a control has keyboard focus. While pinned, dragging, Alt-dragging, and resizing are disabled until the panel is unpinned.
 
 When the viewer scrolls away from the newest message, automatic following pauses so older messages can be read. Selecting the down-arrow button returns to the live end of the chat and resumes automatic following.
 
@@ -68,10 +68,10 @@ When the viewer scrolls away from the newest message, automatic following pauses
 
 ### In-full-screen menu
 
-Opened with the settings button in the panel's top-left toolbar:
+Opened with the settings button in the panel's top toolbar:
 
 - **Background blur** — `0` disables the effect; `100` applies the strongest supported blur to the stream behind the chat.
-- **Corner rounding** — `0` keeps square corners; higher values round the panel and both resize grips together.
+- **Corner rounding** — `0` keeps square corners; higher values round the panel and the resize grips together.
 - **Text shadow** — improves message contrast over bright video.
 - **Restore defaults** — resets every preference except the panel's size and position.
 
@@ -102,6 +102,7 @@ No second chat client, iframe, or network connection is created.
 
 ```text
 manifest.json       Extension manifest and permissions
+PRIVACY-POLICY.md   Privacy policy published with the store listing
 src/content.js      Overlay lifecycle, controls, message view, and settings
 src/content.css     Full-screen overlay styles
 src/popup.html      Browser-action popup markup
@@ -133,7 +134,9 @@ Exclude `tools/`, development files, and repository metadata from release archiv
 
 ## Privacy and Permissions
 
-The only requested permission is `storage`, used to save local preferences and panel geometry. The extension has no background service, performs no analytics or tracking, and makes no network requests. It does not read or transmit account data, chat history, or stream information.
+The only requested permission is `storage`, used to save local preferences and panel geometry. The extension has no background service, performs no analytics or tracking, and makes no network requests. It temporarily displays Kick's existing chat element in the overlay but does not copy, store, or transmit account data, chat history, or stream information.
+
+The published privacy policy is available in [PRIVACY-POLICY.md](PRIVACY-POLICY.md).
 
 ## License
 

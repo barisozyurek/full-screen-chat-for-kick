@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Full-Screen Chat for Kick",
   "version": "1.0.0",
-  "description": "Displays Kick.com chat over the video as a lightweight overlay in fullscreen.",
+  "description": "Keep Kick's live chat visible over full-screen streams and replays.",
   "minimum_chrome_version": "110",
   "permissions": ["storage"],
   "icons": {
