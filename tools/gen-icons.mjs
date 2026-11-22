@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const outDir = join(here, '..', 'icons');
+const storeDir = join(here, '..', 'store');
 
 const BG = [13, 14, 17, 255];
 const ACCENT = [83, 252, 24, 255];
@@ -153,6 +154,7 @@ function encodePNG(size, rgba) {
 }
 
 mkdirSync(outDir, { recursive: true });
+mkdirSync(storeDir, { recursive: true });
 
 for (const size of [16, 32, 48, 128]) {
   const png = encodePNG(size, renderRGBA(size));
@@ -160,3 +162,8 @@ for (const size of [16, 32, 48, 128]) {
   writeFileSync(file, png);
   console.log(`icons/icon${size}.png  ${png.length} bytes`);
 }
+
+// Store listing logo: ayni vektor desenin 300x300 render'i.
+const logo = encodePNG(300, renderRGBA(300));
+writeFileSync(join(storeDir, 'logo-300.png'), logo);
+console.log(`store/logo-300.png  ${logo.length} bytes`);
