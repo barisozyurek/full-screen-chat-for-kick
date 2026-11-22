@@ -3,7 +3,7 @@
 **Extension:** Full-Screen Chat for Kick  
 **Last updated:** November 23, 2026
 
-Full-Screen Chat for Kick is designed to work entirely on your device in Microsoft Edge. The extension does not collect, transmit, sell, or share personal information. It does not send analytics and makes no network requests.
+Full-Screen Chat for Kick is designed to work entirely on your device. The extension does not collect, transmit, sell, or share personal information. It does not send analytics and makes no network requests.
 
 ## Information we collect
 
@@ -21,11 +21,11 @@ The only browser permission requested is `storage`. It is used to save preferenc
 - pinned state
 - panel size and position
 
-This data stays in Microsoft Edge's local extension storage and is never sent to a server. You can reset these preferences with **Restore defaults** in the toolbar popup, or remove them by uninstalling the extension.
+This data stays in the browser's local extension storage and is never sent to a server. You can reset these preferences with **Restore defaults** in the toolbar popup, or remove them by uninstalling the extension.
 
 ## Chat content
 
-While fullscreen is active in Microsoft Edge, the extension temporarily displays Kick's existing chat element inside an overlay on the page. It does not copy, store, or transmit the messages you see. The extension uses your existing Kick session and does not create a second chat connection.
+While fullscreen is active, the extension temporarily displays Kick's existing chat element inside an overlay on the page. It does not copy, store, or transmit the messages you see. The extension uses your existing Kick session and does not create a second chat connection.
 
 ## Third parties
 
