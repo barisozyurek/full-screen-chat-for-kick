@@ -2,8 +2,5 @@
   "name": "full-screen-chat-for-kick",
   "version": "1.0.0",
   "private": true,
-  "description": "A draggable fullscreen chat panel for Kick.com (Chromium / Edge extension)",
-  "scripts": {
-    "icons": "node tools/gen-icons.mjs"
-  }
+  "description": "A draggable fullscreen chat panel for Kick.com (Chromium / Edge extension)"
 }

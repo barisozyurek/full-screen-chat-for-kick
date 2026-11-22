@@ -109,18 +109,11 @@ src/popup.html      Browser-action popup markup
 src/popup.css       Popup styles
 src/popup.js        Popup state and restore behavior
 icons/              Extension icons
-tools/gen-icons.mjs Optional icon generator
 ```
 
 ## Development
 
 There is no build step or runtime dependency. Load the repository root directly as an unpacked extension and reload it from the browser's extensions page after edits.
-
-Icons can be regenerated with:
-
-```bash
-npm run icons
-```
 
 ## Packaging
 
@@ -130,7 +123,7 @@ Include only the files required at runtime:
 - `src/`
 - `icons/`
 
-Exclude `tools/`, development files, and repository metadata from release archives.
+Exclude development files and repository metadata from release archives.
 
 ## Privacy and Permissions
 
