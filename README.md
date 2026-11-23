@@ -5,8 +5,8 @@
 # Full-Screen Chat for Kick
 
 [![Get it from Microsoft Edge Add-ons](https://img.shields.io/badge/Microsoft_Edge_Add--ons-Get_it-0078D4?style=for-the-badge&logo=microsoftedge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/bkabelicpipecdnjgfnahehninhkhgbk)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Chromium 110+](https://img.shields.io/badge/Chromium-110%2B-0078D4.svg)](manifest.json)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
+[![Chromium 110+](https://img.shields.io/badge/Chromium-110%2B-0078D4.svg?style=for-the-badge)](manifest.json)
 
 Kick's live chat, visible over the full-screen video. No second chat, no extra connection.
 
