@@ -11,7 +11,7 @@ The extension targets **Chromium 110 or newer** and uses the Manifest V3 extensi
 | Browser | Support |
 |---|---|
 | Google Chrome | Supported (version 110+) |
-| Microsoft Edge | Supported (version 110+) |
+| Microsoft Edge | Supported (version 110+) — [available in Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/bkabelicpipecdnjgfnahehninhkhgbk) |
 | Brave, Opera, Vivaldi, and other Chromium-based browsers | Generally supported when Chrome-style extensions and Manifest V3 are available |
 | Firefox, Safari | Not supported — different extension APIs |
 
@@ -34,7 +34,13 @@ The content script is scoped to `https://kick.com/*` and `https://*.kick.com/*`.
 
 ## Installation
 
-### Load as an unpacked extension
+### From Microsoft Edge Add-ons (recommended)
+
+[![Get it from Microsoft Edge Add-ons](https://img.shields.io/badge/Microsoft_Edge_Add--ons-Get_it-0078D4?style=for-the-badge&logo=microsoftedge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/bkabelicpipecdnjgfnahehninhkhgbk)
+
+The published listing is the simplest way to install the extension and receive updates automatically. The unpacked steps below are intended for development and testing.
+
+### Load as an unpacked extension (development)
 
 1. Open the extensions page in your browser:
    - Chrome and Chromium: `chrome://extensions`
