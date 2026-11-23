@@ -8,7 +8,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 [![Chromium 110+](https://img.shields.io/badge/Chromium-110%2B-0078D4.svg?style=for-the-badge)](manifest.json)
 
-Watch Kick in true full-screen and still see the chat — even when the streamer hasn't added a chat overlay to the broadcast.
+True full-screen Kick video with the site chat on top — for streams that don't already include a chat overlay.
 
 </div>
 
@@ -18,7 +18,7 @@ Watch Kick in true full-screen and still see the chat — even when the streamer
 
 On Kick, entering true full-screen hides the site's chat panel. Leaving Kick's chat open keeps the player in theater mode instead, so the video does not fill the screen. When the streamer hasn't added a chat overlay to the broadcast itself, there is no built-in way to get both a full-screen player and the live chat.
 
-Full-Screen Chat for Kick solves this by moving Kick's **existing** chat element into a transparent panel above the full-screen player. Your sign-in, moderation state and chat connection stay untouched, and the original page layout is restored when full-screen mode ends.
+Full-Screen Chat for Kick fills that gap by moving Kick's **existing** chat element into a transparent panel above the full-screen player. Your sign-in, moderation state and chat connection stay untouched, and the original page layout is restored when full-screen mode ends.
 
 ## Install
 
