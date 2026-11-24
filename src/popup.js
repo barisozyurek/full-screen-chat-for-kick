@@ -4,6 +4,28 @@ const STORE_KEY = 'fscfk.settings';
 const MAX_BLUR = 100;
 const MAX_CORNER_RADIUS = 24;
 
+const i18n = (key) => {
+  try {
+    return chrome.i18n.getMessage(key) || key;
+  } catch {
+    return key;
+  }
+};
+
+function applyI18n() {
+  try {
+    document.documentElement.lang = chrome.i18n.getUILanguage();
+  } catch {
+    /* Keep the document's default language. */
+  }
+  for (const node of document.querySelectorAll('[data-i18n]')) {
+    node.textContent = i18n(node.dataset.i18n);
+  }
+  for (const node of document.querySelectorAll('[data-i18n-aria]')) {
+    node.setAttribute('aria-label', i18n(node.dataset.i18nAria));
+  }
+}
+
 const DEFAULTS = {
   enabled: true,
   autoOpen: true,
@@ -88,8 +110,8 @@ function render() {
   paintRange(el.radius, state.cornerRadius / MAX_CORNER_RADIUS);
 
   el.masterSub.textContent = state.enabled
-    ? 'Runs automatically in fullscreen'
-    : 'Extension disabled';
+    ? i18n('runsAutomatically')
+    : i18n('extensionDisabled');
 
   document.body.classList.toggle('is-off', !state.enabled);
 }
@@ -155,11 +177,11 @@ function bind() {
     await patch({ ...DEFAULTS, panel: null });
     await notifyActiveTab({ type: 'fscfk:reset-geometry' });
 
-    el.reset.textContent = 'Defaults restored';
+    el.reset.textContent = i18n('defaultsRestored');
     el.reset.classList.add('is-done');
     window.clearTimeout(resetTimer);
     resetTimer = window.setTimeout(() => {
-      el.reset.textContent = 'Restore defaults';
+      el.reset.textContent = i18n('restoreDefaults');
       el.reset.classList.remove('is-done');
     }, 1400);
   });
@@ -171,6 +193,7 @@ async function init() {
   } catch {
     state = { ...DEFAULTS };
   }
+  applyI18n();
   renderVersion();
   render();
   bind();

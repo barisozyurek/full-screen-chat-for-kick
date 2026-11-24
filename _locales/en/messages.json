@@ -1,0 +1,150 @@
+{
+  "extensionName": {
+    "message": "Full-Screen Chat for Kick",
+    "description": "Extension name shown in the browser and store listings."
+  },
+  "shortDescription": {
+    "message": "Keep Kick's live chat visible over full-screen streams and replays.",
+    "description": "Short description shown in store listings."
+  },
+  "popupStatusAria": {
+    "message": "Extension status",
+    "description": "Accessible label for the popup status section."
+  },
+  "extensionEnabled": {
+    "message": "Extension enabled",
+    "description": "Popup master toggle label."
+  },
+  "runsAutomatically": {
+    "message": "Runs automatically in fullscreen",
+    "description": "Popup status text when enabled."
+  },
+  "extensionDisabled": {
+    "message": "Extension disabled",
+    "description": "Popup status text when disabled."
+  },
+  "overlaySettingsAria": {
+    "message": "Overlay settings",
+    "description": "Accessible label for the popup settings section."
+  },
+  "openAutomatically": {
+    "message": "Open automatically in fullscreen",
+    "description": "Popup auto-open toggle label."
+  },
+  "showsChatWhenFullscreen": {
+    "message": "Shows the chat when fullscreen starts",
+    "description": "Popup auto-open toggle detail."
+  },
+  "textShadow": {
+    "message": "Text shadow",
+    "description": "Text shadow setting label."
+  },
+  "keepsMessagesReadable": {
+    "message": "Keeps messages readable on bright scenes",
+    "description": "Text shadow setting detail."
+  },
+  "backgroundBlur": {
+    "message": "Background blur",
+    "description": "Background blur setting label."
+  },
+  "blursStream": {
+    "message": "Blurs the stream behind the chat",
+    "description": "Background blur setting detail."
+  },
+  "cornerRounding": {
+    "message": "Corner rounding",
+    "description": "Corner rounding setting label."
+  },
+  "softensCorners": {
+    "message": "Softens the panel corners and resize grips",
+    "description": "Corner rounding setting detail."
+  },
+  "toggleOverlay": {
+    "message": "toggles the overlay",
+    "description": "Popup shortcut description."
+  },
+  "restoreDefaults": {
+    "message": "Restore defaults",
+    "description": "Reset button label."
+  },
+  "defaultsRestored": {
+    "message": "Defaults restored",
+    "description": "Reset button confirmation label."
+  },
+  "storedLocally": {
+    "message": "Preferences are stored on this device.",
+    "description": "Popup privacy footnote."
+  },
+  "moveChat": {
+    "message": "Move chat",
+    "description": "Accessible label for the panel drag grip."
+  },
+  "dragToMove": {
+    "message": "Drag to move (or hold Alt and drag from the chat)",
+    "description": "Tooltip for the panel drag grip."
+  },
+  "pinChat": {
+    "message": "Pin chat in place",
+    "description": "Pin button label when unpinned."
+  },
+  "unpinChat": {
+    "message": "Unpin chat",
+    "description": "Pin button label when pinned."
+  },
+  "chatSettings": {
+    "message": "Chat settings",
+    "description": "In-panel settings button label."
+  },
+  "closeChat": {
+    "message": "Close chat",
+    "description": "Accessible label for the close button."
+  },
+  "closeShortcut": {
+    "message": "Close (Alt+K)",
+    "description": "Tooltip for the close button."
+  },
+  "resizeNw": {
+    "message": "Resize from top-left corner",
+    "description": "Accessible label for the top-left resize handle."
+  },
+  "resizeN": {
+    "message": "Resize from top",
+    "description": "Accessible label for the top resize handle."
+  },
+  "resizeNe": {
+    "message": "Resize from top-right corner",
+    "description": "Accessible label for the top-right resize handle."
+  },
+  "resizeE": {
+    "message": "Resize from right",
+    "description": "Accessible label for the right resize handle."
+  },
+  "resizeSe": {
+    "message": "Resize from bottom-right corner",
+    "description": "Accessible label for the bottom-right resize handle."
+  },
+  "resizeS": {
+    "message": "Resize from bottom",
+    "description": "Accessible label for the bottom resize handle."
+  },
+  "resizeSw": {
+    "message": "Resize from bottom-left corner",
+    "description": "Accessible label for the bottom-left resize handle."
+  },
+  "resizeW": {
+    "message": "Resize from left",
+    "description": "Accessible label for the left resize handle."
+  },
+  "jumpLatest": {
+    "message": "Jump to latest message",
+    "description": "Accessible label for the jump-to-latest button."
+  },
+  "openPanel": {
+    "message": "Open chat panel",
+    "description": "Accessible label for the fullscreen chat pill."
+  },
+  "pillLabel": {
+    "message": "Chat",
+    "description": "Visible label on the fullscreen chat pill."
+  }
+}

@@ -34,6 +34,7 @@
   const MAX_BLUR = 100;
   const MAX_BLUR_PX = 30;
   const MAX_CORNER_RADIUS = 24;
+  const JUMP_GUARD_MS = 900;
 
   const MIN_W = 280;
   const MIN_H = 220;
@@ -92,6 +93,7 @@
   let chatParent = null;
   let chatNext = null;
   let pill = null;
+  let sizeBadge = null;
 
   let active = false;
   let visible = false;
@@ -120,6 +122,14 @@
   // ---------------------------------------------------------------- utils
 
   const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+  const i18n = (key) => {
+    try {
+      return chrome.i18n.getMessage(key) || key;
+    } catch {
+      return key;
+    }
+  };
 
   function isElementVisible(node) {
     if (!node || !node.isConnected || !node.getClientRects().length) return false;
@@ -316,10 +326,10 @@
     if (!settings.enabled) return;
 
     showPill();
-    if (settings.autoOpen) activate(false);
+    if (settings.autoOpen) activate();
   }
 
-  async function activate(userInitiated) {
+  async function activate() {
     if (!settings.enabled || active) return;
     const el = getFsEl();
     if (!el || !isPlayerFullscreen(el)) return;
@@ -330,9 +340,6 @@
     if (token !== activateToken || !fsEl || fsEl !== getFsEl()) return;
 
     if (!chatEl) {
-      if (userInitiated) {
-        showToast('Chat not found. Keep the chat open and try again.');
-      }
       showPill();
       return;
     }
@@ -430,6 +437,7 @@
     }
 
     chatHost = null;
+    sizeBadge = null;
     chat = null;
     chatParent = null;
     chatNext = null;
@@ -457,7 +465,7 @@
     }
     fsEl = el;
     showPill();
-    if (wasVisible) activate(false);
+    if (wasVisible) activate();
   }
 
   function buildPanel() {
@@ -470,59 +478,60 @@
     const tools = make('div', 'fscfk-tools');
 
     const grab = make('button', 'fscfk-grab', { type: 'button' });
-    grab.title = 'Drag to move (or hold Alt and drag from the chat)';
-    grab.setAttribute('aria-label', 'Move chat');
+    grab.title = i18n('dragToMove');
+    grab.setAttribute('aria-label', i18n('moveChat'));
     grab.appendChild(makeIcon('grip', 14));
 
     const pin = make('button', 'fscfk-pin', { type: 'button' });
-    pin.title = 'Pin chat in place';
-    pin.setAttribute('aria-label', 'Pin chat in place');
+    pin.title = i18n('pinChat');
+    pin.setAttribute('aria-label', i18n('pinChat'));
     pin.setAttribute('aria-pressed', 'false');
     pin.appendChild(makeIcon('pin', 14));
 
     const settingsButton = make('button', 'fscfk-settings-button', { type: 'button' });
-    settingsButton.title = 'Chat settings';
-    settingsButton.setAttribute('aria-label', 'Chat settings');
+    settingsButton.title = i18n('chatSettings');
+    settingsButton.setAttribute('aria-label', i18n('chatSettings'));
     settingsButton.appendChild(makeIcon('settings', 14));
 
     const close = make('button', 'fscfk-close', { type: 'button' });
-    close.title = 'Close (Alt+K)';
-    close.setAttribute('aria-label', 'Close chat');
+    close.title = i18n('closeShortcut');
+    close.setAttribute('aria-label', i18n('closeChat'));
     close.appendChild(makeIcon('close', 12));
 
     const settingsMenu = make('div', 'fscfk-settings-menu');
     settingsMenu.hidden = true;
     settingsMenu.innerHTML = `
       <label class="fscfk-setting">
-        <span>Background blur</span>
+        <span>${i18n('backgroundBlur')}</span>
         <output data-fscfk-blur-output>14</output>
         <input data-fscfk-blur type="range" min="0" max="100" step="1" value="14">
       </label>
       <label class="fscfk-setting">
-        <span>Corner rounding</span>
+        <span>${i18n('cornerRounding')}</span>
         <output data-fscfk-radius-output>0</output>
         <input data-fscfk-radius type="range" min="0" max="24" step="1" value="0">
       </label>
       <label class="fscfk-setting fscfk-setting-toggle">
-        <span>Text shadow</span>
+        <span>${i18n('textShadow')}</span>
         <input data-fscfk-shadow type="checkbox">
       </label>
-      <button class="fscfk-setting-reset" type="button">Restore defaults</button>
+      <button class="fscfk-setting-reset" type="button">${i18n('restoreDefaults')}</button>
     `;
 
     tools.append(grab, pin, settingsButton, close, settingsMenu);
 
     const resizeHandles = [
-      ['nw', 'Resize from top-left corner'],
-      ['n', 'Resize from top'],
-      ['ne', 'Resize from top-right corner'],
-      ['e', 'Resize from right'],
-      ['se', 'Resize from bottom-right corner'],
-      ['s', 'Resize from bottom'],
-      ['sw', 'Resize from bottom-left corner'],
-      ['w', 'Resize from left'],
-    ].map(([dir, label]) => {
+      ['nw', 'resizeNw'],
+      ['n', 'resizeN'],
+      ['ne', 'resizeNe'],
+      ['e', 'resizeE'],
+      ['se', 'resizeSe'],
+      ['s', 'resizeS'],
+      ['sw', 'resizeSw'],
+      ['w', 'resizeW'],
+    ].map(([dir, key]) => {
       const handle = make('button', `fscfk-resize fscfk-resize-${dir}`, { type: 'button' });
+      const label = i18n(key);
       handle.dataset.dir = dir;
       handle.tabIndex = -1;
       handle.title = label;
@@ -532,10 +541,14 @@
 
     const jumpToLatest = make('button', 'fscfk-jump-latest', { type: 'button' });
     jumpToLatest.hidden = true;
-    jumpToLatest.setAttribute('aria-label', 'Jump to latest message');
+    jumpToLatest.setAttribute('aria-label', i18n('jumpLatest'));
     jumpToLatest.appendChild(makeIcon('down', 16));
 
-    panel.append(scrim, chatHost, tools, jumpToLatest, ...resizeHandles);
+    sizeBadge = make('div', 'fscfk-size-badge');
+    sizeBadge.hidden = true;
+    sizeBadge.setAttribute('aria-hidden', 'true');
+
+    panel.append(scrim, chatHost, tools, jumpToLatest, sizeBadge, ...resizeHandles);
   }
 
   function bindPanel() {
@@ -597,11 +610,11 @@
       syncSettingsMenu();
       persist();
 
-      resetSettings.textContent = 'Defaults restored';
+      resetSettings.textContent = i18n('defaultsRestored');
       resetSettings.classList.add('is-done');
       window.clearTimeout(settingsResetTimer);
       settingsResetTimer = window.setTimeout(() => {
-        resetSettings.textContent = 'Restore defaults';
+        resetSettings.textContent = i18n('restoreDefaults');
         resetSettings.classList.remove('is-done');
         settingsResetTimer = 0;
       }, 1400);
@@ -735,8 +748,8 @@
     const pin = panel.querySelector('.fscfk-pin');
     if (!pin) return;
     pin.setAttribute('aria-pressed', String(settings.pinned));
-    pin.title = settings.pinned ? 'Unpin chat' : 'Pin chat in place';
-    pin.setAttribute('aria-label', settings.pinned ? 'Unpin chat' : 'Pin chat in place');
+    pin.title = settings.pinned ? i18n('unpinChat') : i18n('pinChat');
+    pin.setAttribute('aria-label', settings.pinned ? i18n('unpinChat') : i18n('pinChat'));
   }
 
   function syncSettingsMenu() {
@@ -862,14 +875,36 @@
 
   let messageViewObserver = null;
   let messageViewTimer = 0;
+  let messageViewInitTimers = [];
   let messageViewScroller = null;
   let markedScroller = null;
   let scrollerScrollHandler = null;
   let scrollerAtBottom = true;
+  let jumpingToLatest = false;
+  let jumpGuardUntil = 0;
+  let jumpFrame = 0;
+
+  function stopJumpGuard() {
+    if (jumpFrame) {
+      cancelAnimationFrame(jumpFrame);
+      jumpFrame = 0;
+    }
+    jumpingToLatest = false;
+    jumpGuardUntil = 0;
+  }
+
+  function pinScrollerToBottom(node) {
+    if (!node || !node.isConnected) return false;
+    const distance = node.scrollHeight - node.scrollTop - node.clientHeight;
+    if (distance > 2) node.scrollTop = node.scrollHeight;
+    return distance <= 2;
+  }
 
   function setMessageViewScroller(node) {
     const next = node && node.isConnected ? node : null;
     if (markedScroller === next) return;
+
+    if (jumpingToLatest) stopJumpGuard();
 
     if (markedScroller) {
       markedScroller.classList.remove('fscfk-scroller');
@@ -886,6 +921,11 @@
     markedScroller.classList.add('fscfk-scroller');
     scrollerScrollHandler = () => {
       if (!markedScroller) return;
+      if (jumpingToLatest) {
+        scrollerAtBottom = true;
+        updateJumpLatestButton();
+        return;
+      }
       scrollerAtBottom =
         markedScroller.scrollHeight - markedScroller.scrollTop - markedScroller.clientHeight <
         48;
@@ -900,26 +940,53 @@
     if (!panel) return;
     const button = panel.querySelector('.fscfk-jump-latest');
     if (!button) return;
-    const shouldShow = !!markedScroller && !scrollerAtBottom;
+    const shouldShow = !!markedScroller && !scrollerAtBottom && !jumpingToLatest;
     button.hidden = !shouldShow;
   }
 
   function jumpToLatestMessages() {
-    if (!markedScroller || !markedScroller.isConnected) return;
-    markedScroller.scrollTo({
-      top: markedScroller.scrollHeight,
-      behavior: 'smooth',
-    });
+    const node = markedScroller;
+    if (!node || !node.isConnected) return;
+
+    jumpingToLatest = true;
+    jumpGuardUntil = performance.now() + JUMP_GUARD_MS;
     scrollerAtBottom = true;
     updateJumpLatestButton();
+    pinScrollerToBottom(node);
+
+    if (jumpFrame) cancelAnimationFrame(jumpFrame);
+    const guard = () => {
+      jumpFrame = 0;
+      if (!active || !jumpingToLatest) return;
+      const current = markedScroller;
+      if (!current || !current.isConnected) {
+        stopJumpGuard();
+        return;
+      }
+      pinScrollerToBottom(current);
+      scrollerAtBottom = true;
+      updateJumpLatestButton();
+      if (performance.now() < jumpGuardUntil) {
+        jumpFrame = window.requestAnimationFrame(guard);
+      } else {
+        stopJumpGuard();
+        updateJumpLatestButton();
+      }
+    };
+    jumpFrame = window.requestAnimationFrame(guard);
   }
 
   function keepScrollerAtBottom() {
     const node = markedScroller;
-    if (!node || !node.isConnected || !scrollerAtBottom) return;
-    if (node.scrollTop + node.clientHeight < node.scrollHeight - 2) {
-      node.scrollTo({ top: node.scrollHeight, behavior: 'auto' });
+    if (!node || !node.isConnected) return;
+    if (jumpingToLatest) {
+      pinScrollerToBottom(node);
+      scrollerAtBottom = true;
+      updateJumpLatestButton();
+      return;
     }
+    if (!scrollerAtBottom) return;
+    pinScrollerToBottom(node);
   }
 
   function refreshChatLayout() {
@@ -951,11 +1018,11 @@
     // The layout may not have settled right after the chat is moved into the
     // panel; retry a few times if measurements come back as zero.
     syncMessageView();
-    for (const delay of [80, 220, 480, 1000]) {
+    messageViewInitTimers = [80, 220, 480, 1000].map((delay) =>
       window.setTimeout(() => {
         if (active) syncMessageView();
-      }, delay);
-    }
+      }, delay)
+    );
     if (!chat) return;
 
     messageViewObserver = new MutationObserver((records) => {
@@ -988,6 +1055,9 @@
       window.clearTimeout(messageViewTimer);
       messageViewTimer = 0;
     }
+    for (const timer of messageViewInitTimers) window.clearTimeout(timer);
+    messageViewInitTimers = [];
+    stopJumpGuard();
     messageViewScroller = null;
     setMessageViewScroller(null);
   }
@@ -1022,55 +1092,60 @@
     const right = Math.min(start.x + start.w, vw);
     const bottom = Math.min(start.y + start.h, vh);
 
-    const fromLeft = () => {
-      const max = Math.max(0, vw - start.x);
-      next.w = Math.round(clamp(start.w + dx, Math.min(MIN_W, max), max));
+    // Drag the left/top edge: the opposite edge stays anchored.
+    const dragLeft = () => {
+      const minWidth = Math.min(MIN_W, right);
+      next.x = Math.round(clamp(start.x + dx, 0, Math.max(0, right - minWidth)));
+      next.w = Math.max(minWidth, right - next.x);
     };
-    const fromRight = () => {
-      const max = Math.max(0, right);
-      const width = clamp(start.w - dx, Math.min(MIN_W, max), max);
-      next.w = Math.round(width);
-      next.x = Math.round(right - next.w);
+    const dragTop = () => {
+      const minHeight = Math.min(MIN_H, bottom);
+      next.y = Math.round(clamp(start.y + dy, 0, Math.max(0, bottom - minHeight)));
+      next.h = Math.max(minHeight, bottom - next.y);
     };
-    const fromTop = () => {
-      const max = Math.max(0, vh - start.y);
-      next.h = Math.round(clamp(start.h + dy, Math.min(MIN_H, max), max));
+
+    // Drag the right/bottom edge: the left/top edge stays anchored.
+    const dragRight = () => {
+      const maxWidth = Math.max(0, vw - start.x);
+      next.w = Math.round(clamp(start.w + dx, Math.min(MIN_W, maxWidth), maxWidth));
     };
-    const fromBottom = () => {
-      const max = Math.max(0, bottom);
-      const height = clamp(start.h - dy, Math.min(MIN_H, max), max);
-      next.h = Math.round(height);
-      next.y = Math.round(bottom - next.h);
+    const dragBottom = () => {
+      const maxHeight = Math.max(0, vh - start.y);
+      next.h = Math.round(clamp(start.h + dy, Math.min(MIN_H, maxHeight), maxHeight));
     };
 
     switch (dir) {
       case 'n':
-        fromBottom();
+        dragTop();
         break;
       case 's':
-        fromTop();
+        dragBottom();
         break;
       case 'w':
-        fromRight();
+        dragLeft();
         break;
       case 'e':
-        fromLeft();
+        dragRight();
         break;
       case 'ne':
-        fromLeft();
-        fromBottom();
+        dragRight();
+        dragTop();
         break;
-      case 'sw':
-        fromRight();
-        fromTop();
+      case 'nw':
+        dragLeft();
+        dragTop();
         break;
       case 'se':
-        fromLeft();
-        fromTop();
+        dragRight();
+        dragBottom();
+        break;
+      case 'sw':
+        dragLeft();
+        dragBottom();
         break;
       default:
-        fromLeft();
-        fromTop();
+        dragRight();
+        dragBottom();
     }
 
     return { ...fitPosition(next.x, next.y, next.w, next.h, vw, vh), w: next.w, h: next.h };
@@ -1142,21 +1217,27 @@
 
   function showUi(autoHide) {
     if (!panel) return;
+    // A delayed hide from an earlier hover must never win over an explicit
+    // show (e.g. a long resize started while the controls were auto-hiding).
     if (uiHideTimer) {
       clearTimeout(uiHideTimer);
       uiHideTimer = 0;
     }
+    if (uiTimer) {
+      clearTimeout(uiTimer);
+      uiTimer = 0;
+    }
     panel.classList.add('fscfk-show-ui');
     if (autoHide) {
-      if (uiTimer) clearTimeout(uiTimer);
       uiTimer = window.setTimeout(() => {
         uiTimer = 0;
-        panel?.classList.remove('fscfk-show-ui');
+        if (!isDragging) panel?.classList.remove('fscfk-show-ui');
       }, 1800);
     }
   }
 
   function hideUiSoon() {
+    if (isDragging) return;
     if (uiTimer) {
       clearTimeout(uiTimer);
       uiTimer = 0;
@@ -1164,8 +1245,18 @@
     if (uiHideTimer) clearTimeout(uiHideTimer);
     uiHideTimer = window.setTimeout(() => {
       uiHideTimer = 0;
-      panel?.classList.remove('fscfk-show-ui');
+      if (!isDragging) panel?.classList.remove('fscfk-show-ui');
     }, 500);
+  }
+
+  function setSizeBadge(visible) {
+    if (!sizeBadge) return;
+    if (visible && geom) {
+      sizeBadge.textContent = `${geom.w} × ${geom.h}`;
+      sizeBadge.hidden = false;
+    } else {
+      sizeBadge.hidden = true;
+    }
   }
 
   function onPanelPointerMove() {
@@ -1274,6 +1365,7 @@
       /* noop */
     }
     markDragging(true);
+    setSizeBadge(true);
 
     const onMove = (moveEvent) => {
       const { w: vw, h: vh } = viewportSize();
@@ -1290,12 +1382,14 @@
       geom.w = next.w;
       geom.h = next.h;
       scheduleGeometry();
+      setSizeBadge(true);
     };
 
     const onEnd = () => {
       handle.removeEventListener('pointermove', onMove);
       handle.removeEventListener('pointerup', onEnd);
       handle.removeEventListener('pointercancel', onEnd);
+      setSizeBadge(false);
       markDragging(false);
       applyGeometryNow();
       saveGeometry();
@@ -1323,7 +1417,7 @@
 
   function openPanel() {
     if (!active) {
-      activate(true);
+      activate();
       return;
     }
     if (!chat || !chat.isConnected) {
@@ -1334,7 +1428,7 @@
         return;
       }
       fsEl = el;
-      activate(true);
+      activate();
       return;
     }
     assertDataChat();
@@ -1354,17 +1448,17 @@
   function createPill() {
     const button = make('button', 'fscfk-pill', { type: 'button' });
     button.id = 'fscfk-pill';
-    button.setAttribute('aria-label', 'Open chat panel');
+    button.setAttribute('aria-label', i18n('openPanel'));
     button.appendChild(makeIcon('chat', 17));
 
     const label = make('span', 'fscfk-pill-label');
-    label.textContent = 'Chat';
+    label.textContent = i18n('pillLabel');
     button.appendChild(label);
 
     button.addEventListener('click', (event) => {
       event.stopPropagation();
       if (active) openPanel();
-      else activate(true);
+      else activate();
     });
     button.addEventListener('dblclick', (event) => event.stopPropagation());
     return button;
@@ -1487,21 +1581,8 @@
       if (visible) closePanel();
       else openPanel();
     } else {
-      activate(true);
+      activate();
     }
-  }
-
-  // ---------------------------------------------------------------- toast
-
-  function showToast(message) {
-    if (!fsEl) return;
-    const existing = fsEl.querySelector('.fscfk-toast');
-    if (existing) existing.remove();
-
-    const node = make('div', 'fscfk-toast');
-    node.textContent = message;
-    fsEl.appendChild(node);
-    window.setTimeout(() => node.remove(), 3400);
   }
 
   // -------------------------------------------------------------- lifecycle

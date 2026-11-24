@@ -6,7 +6,7 @@
 
 [![Get it from the Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-Get_it-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/full-screen-chat-for-kick/eajbbpkbbiggdknglpbpphaabclghceo)
 [![Get it from Microsoft Edge Add-ons](https://img.shields.io/badge/Microsoft_Edge_Add--ons-Get_it-0078D4?style=for-the-badge&logo=microsoftedge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/bkabelicpipecdnjgfnahehninhkhgbk)<br />
-[![Latest release](https://img.shields.io/badge/release-v1.0.0-0078D4?style=for-the-badge&logo=github&logoColor=white)](https://github.com/barisozyurek/full-screen-chat-for-kick/releases/latest)
+[![Latest release](https://img.shields.io/badge/release-v1.1.0-0078D4?style=for-the-badge&logo=github&logoColor=white)](https://github.com/barisozyurek/full-screen-chat-for-kick/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 [![Chromium 110+](https://img.shields.io/badge/Chromium-110%2B-0078D4.svg?style=for-the-badge)](manifest.json)
 

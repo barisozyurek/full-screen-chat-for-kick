@@ -1,0 +1,150 @@
+{
+  "extensionName": {
+    "message": "Full-Screen Chat for Kick",
+    "description": "Extension name shown in the browser and store listings."
+  },
+  "shortDescription": {
+    "message": "Mantenha o chat ao vivo do Kick visível sobre transmissões e replays em tela cheia.",
+    "description": "Short description shown in store listings."
+  },
+  "popupStatusAria": {
+    "message": "Status da extensão",
+    "description": "Accessible label for the popup status section."
+  },
+  "extensionEnabled": {
+    "message": "Extensão ativada",
+    "description": "Popup master toggle label."
+  },
+  "runsAutomatically": {
+    "message": "Funciona automaticamente em tela cheia",
+    "description": "Popup status text when enabled."
+  },
+  "extensionDisabled": {
+    "message": "Extensão desativada",
+    "description": "Popup status text when disabled."
+  },
+  "overlaySettingsAria": {
+    "message": "Configurações da sobreposição",
+    "description": "Accessible label for the popup settings section."
+  },
+  "openAutomatically": {
+    "message": "Abrir automaticamente em tela cheia",
+    "description": "Popup auto-open toggle label."
+  },
+  "showsChatWhenFullscreen": {
+    "message": "Mostra o chat quando a tela cheia começa",
+    "description": "Popup auto-open toggle detail."
+  },
+  "textShadow": {
+    "message": "Sombra do texto",
+    "description": "Text shadow setting label."
+  },
+  "keepsMessagesReadable": {
+    "message": "Mantém as mensagens legíveis em cenas claras",
+    "description": "Text shadow setting detail."
+  },
+  "backgroundBlur": {
+    "message": "Desfoque do plano de fundo",
+    "description": "Background blur setting label."
+  },
+  "blursStream": {
+    "message": "Desfoca a transmissão atrás do chat",
+    "description": "Background blur setting detail."
+  },
+  "cornerRounding": {
+    "message": "Arredondamento dos cantos",
+    "description": "Corner rounding setting label."
+  },
+  "softensCorners": {
+    "message": "Suaviza os cantos do painel e as alças de redimensionamento",
+    "description": "Corner rounding setting detail."
+  },
+  "toggleOverlay": {
+    "message": "alterna a sobreposição",
+    "description": "Popup shortcut description."
+  },
+  "restoreDefaults": {
+    "message": "Restaurar padrões",
+    "description": "Reset button label."
+  },
+  "defaultsRestored": {
+    "message": "Padrões restaurados",
+    "description": "Reset button confirmation label."
+  },
+  "storedLocally": {
+    "message": "As preferências são armazenadas neste dispositivo.",
+    "description": "Popup privacy footnote."
+  },
+  "moveChat": {
+    "message": "Mover o chat",
+    "description": "Accessible label for the panel drag grip."
+  },
+  "dragToMove": {
+    "message": "Arraste para mover (ou segure Alt e arraste pelo chat)",
+    "description": "Tooltip for the panel drag grip."
+  },
+  "pinChat": {
+    "message": "Fixar o chat",
+    "description": "Pin button label when unpinned."
+  },
+  "unpinChat": {
+    "message": "Desafixar o chat",
+    "description": "Pin button label when pinned."
+  },
+  "chatSettings": {
+    "message": "Configurações do chat",
+    "description": "In-panel settings button label."
+  },
+  "closeChat": {
+    "message": "Fechar o chat",
+    "description": "Accessible label for the close button."
+  },
+  "closeShortcut": {
+    "message": "Fechar (Alt+K)",
+    "description": "Tooltip for the close button."
+  },
+  "resizeNw": {
+    "message": "Redimensionar pelo canto superior esquerdo",
+    "description": "Accessible label for the top-left resize handle."
+  },
+  "resizeN": {
+    "message": "Redimensionar pela parte superior",
+    "description": "Accessible label for the top resize handle."
+  },
+  "resizeNe": {
+    "message": "Redimensionar pelo canto superior direito",
+    "description": "Accessible label for the top-right resize handle."
+  },
+  "resizeE": {
+    "message": "Redimensionar pela direita",
+    "description": "Accessible label for the right resize handle."
+  },
+  "resizeSe": {
+    "message": "Redimensionar pelo canto inferior direito",
+    "description": "Accessible label for the bottom-right resize handle."
+  },
+  "resizeS": {
+    "message": "Redimensionar pela parte inferior",
+    "description": "Accessible label for the bottom resize handle."
+  },
+  "resizeSw": {
+    "message": "Redimensionar pelo canto inferior esquerdo",
+    "description": "Accessible label for the bottom-left resize handle."
+  },
+  "resizeW": {
+    "message": "Redimensionar pela esquerda",
+    "description": "Accessible label for the left resize handle."
+  },
+  "jumpLatest": {
+    "message": "Ir para a última mensagem",
+    "description": "Accessible label for the jump-to-latest button."
+  },
+  "openPanel": {
+    "message": "Abrir o painel de chat",
+    "description": "Accessible label for the fullscreen chat pill."
+  },
+  "pillLabel": {
+    "message": "Chat",
+    "description": "Visible label on the fullscreen chat pill."
+  }
+}

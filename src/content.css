@@ -456,7 +456,9 @@
   cursor: ew-resize;
 }
 
-.fscfk-panel.fscfk-show-ui .fscfk-resize {
+.fscfk-panel.fscfk-show-ui .fscfk-resize,
+.fscfk-panel.fscfk-dragging .fscfk-tools,
+.fscfk-panel.fscfk-dragging .fscfk-resize {
   opacity: 1;
   pointer-events: auto;
 }
@@ -541,6 +543,30 @@
   border-color: #53fc18;
 }
 
+/* Live width × height readout while resizing. */
+.fscfk-size-badge {
+  position: absolute;
+  left: 50%;
+  bottom: 44px;
+  z-index: 7;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  border: 1px solid rgba(83, 252, 24, 0.4);
+  border-radius: 6px;
+  background: rgba(8, 10, 12, 0.88);
+  color: #eaffdf;
+  font: 600 11px/1 "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.fscfk-size-badge[hidden] {
+  display: none;
+}
+
 /* ------------------------------------------------------------------ pill */
 
 .fscfk-pill {
@@ -597,41 +623,9 @@
   }
 }
 
-/* ----------------------------------------------------------------- toast */
-
-.fscfk-toast {
-  position: fixed;
-  bottom: 44px;
-  left: 50%;
-  z-index: 2147483000;
-  max-width: min(420px, 80vw);
-  padding: 9px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
-  background: rgba(12, 12, 15, 0.94);
-  color: #fff;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-  font: 500 12px/1.4 "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
-  transform: translateX(-50%);
-  animation: fscfk-toast-in 160ms ease-out both;
-  pointer-events: none;
-}
-
-@keyframes fscfk-toast-in {
-  from {
-    opacity: 0;
-    transform: translate(-50%, 6px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .fscfk-panel,
-  .fscfk-pill,
-  .fscfk-toast {
+  .fscfk-pill {
     animation: none;
   }
 }

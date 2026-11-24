@@ -1,0 +1,150 @@
+{
+  "extensionName": {
+    "message": "Full-Screen Chat for Kick",
+    "description": "Tarayıcıda ve mağaza listelerinde gösterilen uzantı adı."
+  },
+  "shortDescription": {
+    "message": "Kick'in canlı sohbetini tam ekran yayınlarda ve tekrarlarda görünür tutar.",
+    "description": "Mağaza listelerinde gösterilen kısa açıklama."
+  },
+  "popupStatusAria": {
+    "message": "Uzantı durumu",
+    "description": "Popup durum bölümünün erişilebilir etiketi."
+  },
+  "extensionEnabled": {
+    "message": "Uzantı etkin",
+    "description": "Popup ana anahtar etiketi."
+  },
+  "runsAutomatically": {
+    "message": "Tam ekranda otomatik çalışır",
+    "description": "Etkin durumda popup metni."
+  },
+  "extensionDisabled": {
+    "message": "Uzantı devre dışı",
+    "description": "Devre dışı durumda popup metni."
+  },
+  "overlaySettingsAria": {
+    "message": "Katman ayarları",
+    "description": "Popup ayarlar bölümünün erişilebilir etiketi."
+  },
+  "openAutomatically": {
+    "message": "Tam ekranda otomatik aç",
+    "description": "Otomatik açma anahtarının etiketi."
+  },
+  "showsChatWhenFullscreen": {
+    "message": "Tam ekran başladığında sohbeti gösterir",
+    "description": "Otomatik açma anahtarının açıklaması."
+  },
+  "textShadow": {
+    "message": "Metin gölgesi",
+    "description": "Metin gölgesi ayarının etiketi."
+  },
+  "keepsMessagesReadable": {
+    "message": "Parlak sahnelerde mesajların okunmasını sağlar",
+    "description": "Metin gölgesi ayarının açıklaması."
+  },
+  "backgroundBlur": {
+    "message": "Arka plan bulanıklığı",
+    "description": "Arka plan bulanıklığı ayarının etiketi."
+  },
+  "blursStream": {
+    "message": "Sohbetin arkasındaki görüntüyü bulanıklaştırır",
+    "description": "Arka plan bulanıklığı ayarının açıklaması."
+  },
+  "cornerRounding": {
+    "message": "Köşe yuvarlaklığı",
+    "description": "Köşe yuvarlaklığı ayarının etiketi."
+  },
+  "softensCorners": {
+    "message": "Panel köşelerini ve yeniden boyutlandırma tutamaçlarını yumuşatır",
+    "description": "Köşe yuvarlaklığı ayarının açıklaması."
+  },
+  "toggleOverlay": {
+    "message": "katmanı açıp kapatır",
+    "description": "Popup kısayol açıklaması."
+  },
+  "restoreDefaults": {
+    "message": "Varsayılanları geri yükle",
+    "description": "Sıfırlama düğmesi etiketi."
+  },
+  "defaultsRestored": {
+    "message": "Varsayılanlar geri yüklendi",
+    "description": "Sıfırlama düğmesinin onay etiketi."
+  },
+  "storedLocally": {
+    "message": "Tercihler bu cihazda saklanır.",
+    "description": "Popup gizlilik notu."
+  },
+  "moveChat": {
+    "message": "Sohbeti taşı",
+    "description": "Panel sürükleme tutamacının erişilebilir etiketi."
+  },
+  "dragToMove": {
+    "message": "Sürükleyerek taşı (veya Alt basılıyken sohbetten sürükle)",
+    "description": "Panel sürükleme tutamacının ipucu."
+  },
+  "pinChat": {
+    "message": "Sohbeti sabitle",
+    "description": "Sabitleme düğmesinin sabitlenmemiş etiketi."
+  },
+  "unpinChat": {
+    "message": "Sabitlemeyi kaldır",
+    "description": "Sabitleme düğmesinin sabitlenmiş etiketi."
+  },
+  "chatSettings": {
+    "message": "Sohbet ayarları",
+    "description": "Panel içindeki ayarlar düğmesinin etiketi."
+  },
+  "closeChat": {
+    "message": "Sohbeti kapat",
+    "description": "Kapatma düğmesinin erişilebilir etiketi."
+  },
+  "closeShortcut": {
+    "message": "Kapat (Alt+K)",
+    "description": "Kapatma düğmesinin ipucu."
+  },
+  "resizeNw": {
+    "message": "Sol üst köşeden yeniden boyutlandır",
+    "description": "Sol üst yeniden boyutlandırma tutamacının etiketi."
+  },
+  "resizeN": {
+    "message": "Üst kenardan yeniden boyutlandır",
+    "description": "Üst yeniden boyutlandırma tutamacının etiketi."
+  },
+  "resizeNe": {
+    "message": "Sağ üst köşeden yeniden boyutlandır",
+    "description": "Sağ üst yeniden boyutlandırma tutamacının etiketi."
+  },
+  "resizeE": {
+    "message": "Sağ kenardan yeniden boyutlandır",
+    "description": "Sağ yeniden boyutlandırma tutamacının etiketi."
+  },
+  "resizeSe": {
+    "message": "Sağ alt köşeden yeniden boyutlandır",
+    "description": "Sağ alt yeniden boyutlandırma tutamacının etiketi."
+  },
+  "resizeS": {
+    "message": "Alt kenardan yeniden boyutlandır",
+    "description": "Alt yeniden boyutlandırma tutamacının etiketi."
+  },
+  "resizeSw": {
+    "message": "Sol alt köşeden yeniden boyutlandır",
+    "description": "Sol alt yeniden boyutlandırma tutamacının etiketi."
+  },
+  "resizeW": {
+    "message": "Sol kenardan yeniden boyutlandır",
+    "description": "Sol yeniden boyutlandırma tutamacının etiketi."
+  },
+  "jumpLatest": {
+    "message": "En son mesaja git",
+    "description": "En son mesaja atlama düğmesinin erişilebilir etiketi."
+  },
+  "openPanel": {
+    "message": "Sohbet panelini aç",
+    "description": "Tam ekrandaki sohbet düğmesinin erişilebilir etiketi."
+  },
+  "pillLabel": {
+    "message": "Sohbet",
+    "description": "Tam ekrandaki sohbet düğmesinin görünen etiketi."
+  }
+}

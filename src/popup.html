@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="color-scheme" content="dark" />
-    <title>Full-Screen Chat for Kick</title>
+    <title data-i18n="extensionName">Full-Screen Chat for Kick</title>
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
@@ -11,16 +11,16 @@
       <header class="topbar">
         <div class="brand">
           <img class="brand-icon" src="../icons/icon48.png" alt="" width="28" height="28" />
-          <span class="brand-name">Full-Screen Chat for Kick</span>
+          <span class="brand-name" data-i18n="extensionName">Full-Screen Chat for Kick</span>
         </div>
         <span class="version" id="version"></span>
       </header>
 
-      <section class="group" aria-label="Extension status">
+      <section class="group" aria-label="Extension status" data-i18n-aria="popupStatusAria">
         <label class="row" for="enabled">
           <span class="row-copy">
-            <span class="row-label">Extension enabled</span>
-            <span class="row-detail" id="masterSub">Runs automatically in fullscreen</span>
+            <span class="row-label" data-i18n="extensionEnabled">Extension enabled</span>
+            <span class="row-detail" id="masterSub" data-i18n="runsAutomatically">Runs automatically in fullscreen</span>
           </span>
           <span class="switch">
             <input id="enabled" type="checkbox" checked />
@@ -29,11 +29,11 @@
         </label>
       </section>
 
-      <section class="group group--settings" aria-label="Overlay settings">
+      <section class="group group--settings" aria-label="Overlay settings" data-i18n-aria="overlaySettingsAria">
         <label class="row" for="autoOpen">
           <span class="row-copy">
-            <span class="row-label">Open automatically in fullscreen</span>
-            <span class="row-detail">Shows the chat when fullscreen starts</span>
+            <span class="row-label" data-i18n="openAutomatically">Open automatically in fullscreen</span>
+            <span class="row-detail" data-i18n="showsChatWhenFullscreen">Shows the chat when fullscreen starts</span>
           </span>
           <span class="switch">
             <input id="autoOpen" type="checkbox" checked />
@@ -43,8 +43,8 @@
 
         <label class="row" for="shadow">
           <span class="row-copy">
-            <span class="row-label">Text shadow</span>
-            <span class="row-detail">Keeps messages readable on bright scenes</span>
+            <span class="row-label" data-i18n="textShadow">Text shadow</span>
+            <span class="row-detail" data-i18n="keepsMessagesReadable">Keeps messages readable on bright scenes</span>
           </span>
           <span class="switch">
             <input id="shadow" type="checkbox" checked />
@@ -54,31 +54,31 @@
 
         <div class="row row--slider">
           <div class="slider-head">
-            <label class="row-label" for="blur">Background blur</label>
+            <label class="row-label" for="blur" data-i18n="backgroundBlur">Background blur</label>
             <output id="blurOut" for="blur">14</output>
           </div>
           <input id="blur" type="range" min="0" max="100" step="1" value="14" />
-          <span class="row-detail">Blurs the stream behind the chat</span>
+          <span class="row-detail" data-i18n="blursStream">Blurs the stream behind the chat</span>
         </div>
 
         <div class="row row--slider">
           <div class="slider-head">
-            <label class="row-label" for="radius">Corner rounding</label>
+            <label class="row-label" for="radius" data-i18n="cornerRounding">Corner rounding</label>
             <output id="radiusOut" for="radius">0</output>
           </div>
           <input id="radius" type="range" min="0" max="24" step="1" value="0" />
-          <span class="row-detail">Softens the panel corners and resize grips</span>
+          <span class="row-detail" data-i18n="softensCorners">Softens the panel corners and resize grips</span>
         </div>
       </section>
 
       <p class="shortcut">
         <kbd>Alt</kbd><span class="shortcut-plus">+</span><kbd>K</kbd>
-        <span>toggles the overlay</span>
+        <span data-i18n="toggleOverlay">toggles the overlay</span>
       </p>
 
-      <button id="reset" class="reset" type="button">Restore defaults</button>
+      <button id="reset" class="reset" type="button" data-i18n="restoreDefaults">Restore defaults</button>
 
-      <p class="privacy">Preferences are stored on this device.</p>
+      <p class="privacy" data-i18n="storedLocally">Preferences are stored on this device.</p>
     </main>
 
     <script src="popup.js"></script>
