@@ -5,7 +5,8 @@
 # Full-Screen Chat for Kick
 
 [![Get it from the Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-Get_it-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/full-screen-chat-for-kick/eajbbpkbbiggdknglpbpphaabclghceo)
-[![Get it from Microsoft Edge Add-ons](https://img.shields.io/badge/Microsoft_Edge_Add--ons-Get_it-0078D4?style=for-the-badge&logo=microsoftedge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/bkabelicpipecdnjgfnahehninhkhgbk)
+[![Get it from Microsoft Edge Add-ons](https://img.shields.io/badge/Microsoft_Edge_Add--ons-Get_it-0078D4?style=for-the-badge&logo=microsoftedge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/bkabelicpipecdnjgfnahehninhkhgbk)<br />
+[![Latest release](https://img.shields.io/github/v/release/barisozyurek/full-screen-chat-for-kick?style=for-the-badge&logo=github&logoColor=white&label=release)](https://github.com/barisozyurek/full-screen-chat-for-kick/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 [![Chromium 110+](https://img.shields.io/badge/Chromium-110%2B-0078D4.svg?style=for-the-badge)](manifest.json)
 
@@ -85,7 +86,7 @@ The extension targets **Chromium 110 or newer** and uses Manifest V3. The conten
 |---|---|
 | Microsoft Edge | Supported (110+) — [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/bkabelicpipecdnjgfnahehninhkhgbk) |
 | Google Chrome | Supported (110+) — [Chrome Web Store](https://chromewebstore.google.com/detail/full-screen-chat-for-kick/eajbbpkbbiggdknglpbpphaabclghceo) |
-| Brave, Opera, Vivaldi and other Chromium browsers | Generally supported when Chrome-style extensions and MV3 are available |
+| Brave, Opera, Vivaldi and other Chromium browsers | Generally supported when Chrome-style extensions and MV3 are available — install from the [Chrome Web Store](https://chromewebstore.google.com/detail/full-screen-chat-for-kick/eajbbpkbbiggdknglpbpphaabclghceo) |
 | Firefox, Safari | Not supported — different extension APIs |
 
 ## How it works
