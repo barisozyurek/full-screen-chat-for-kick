@@ -4,6 +4,7 @@
 
 # Full-Screen Chat for Kick
 
+[![Get it from the Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-Get_it-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/full-screen-chat-for-kick/eajbbpkbbiggdknglpbpphaabclghceo)
 [![Get it from Microsoft Edge Add-ons](https://img.shields.io/badge/Microsoft_Edge_Add--ons-Get_it-0078D4?style=for-the-badge&logo=microsoftedge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/bkabelicpipecdnjgfnahehninhkhgbk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 [![Chromium 110+](https://img.shields.io/badge/Chromium-110%2B-0078D4.svg?style=for-the-badge)](manifest.json)
@@ -22,7 +23,9 @@ Full-Screen Chat for Kick fills that gap by moving Kick's **existing** chat elem
 
 ## Install
 
-**Microsoft Edge (recommended):** install from [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/bkabelicpipecdnjgfnahehninhkhgbk) to receive updates automatically.
+**Google Chrome:** install from the [Chrome Web Store](https://chromewebstore.google.com/detail/full-screen-chat-for-kick/eajbbpkbbiggdknglpbpphaabclghceo) to receive updates automatically.
+
+**Microsoft Edge:** install from [Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/bkabelicpipecdnjgfnahehninhkhgbk) to receive updates automatically.
 
 ### Unpacked install (development)
 
@@ -80,8 +83,8 @@ The extension targets **Chromium 110 or newer** and uses Manifest V3. The conten
 
 | Browser | Support |
 |---|---|
-| Microsoft Edge | Supported (110+) |
-| Google Chrome | Supported (110+) |
+| Microsoft Edge | Supported (110+) — [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/bkabelicpipecdnjgfnahehninhkhgbk) |
+| Google Chrome | Supported (110+) — [Chrome Web Store](https://chromewebstore.google.com/detail/full-screen-chat-for-kick/eajbbpkbbiggdknglpbpphaabclghceo) |
 | Brave, Opera, Vivaldi and other Chromium browsers | Generally supported when Chrome-style extensions and MV3 are available |
 | Firefox, Safari | Not supported — different extension APIs |
 
