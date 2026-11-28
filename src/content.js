@@ -35,6 +35,8 @@
   const MAX_BLUR_PX = 30;
   const MAX_CORNER_RADIUS = 24;
   const JUMP_GUARD_MS = 900;
+  // Kick fades its own player controls after about four seconds of inactivity.
+  const PILL_IDLE_MS = 4000;
 
   const MIN_W = 280;
   const MIN_H = 220;
@@ -118,6 +120,14 @@
 
   let isDragging = false;
   let suppressClickUntil = 0;
+
+  // An explicit close (X button, pill or Alt+K) lasts for this page visit,
+  // including fullscreen exit/re-entry. A reload or channel change restores
+  // the auto-open default.
+  let suppressAutoOpen = false;
+  let lastHref = location.href;
+
+  let pillIdleTimer = 0;
 
   // ---------------------------------------------------------------- utils
 
@@ -313,6 +323,10 @@
 
   function onFullscreenChange() {
     if (!ready) return;
+    if (location.href !== lastHref) {
+      lastHref = location.href;
+      suppressAutoOpen = false;
+    }
     const el = getFsEl();
 
     if (active) teardownPanel();
@@ -326,7 +340,7 @@
     if (!settings.enabled) return;
 
     showPill();
-    if (settings.autoOpen) activate();
+    if (settings.autoOpen && !suppressAutoOpen) activate();
   }
 
   async function activate() {
@@ -1412,10 +1426,12 @@
     applyGeometryNow();
     panel.hidden = true;
     visible = false;
+    suppressAutoOpen = true;
     showPill();
   }
 
   function openPanel() {
+    suppressAutoOpen = false;
     if (!active) {
       activate();
       return;
@@ -1445,6 +1461,28 @@
 
   // ------------------------------------------------------------------- pill
 
+  // Kick fades its own player controls after ~4s of inactivity. Mirror that
+  // clock instead of probing Kick's unstable control DOM: the pill is visible
+  // as soon as the panel closes and disappears on the same idle schedule.
+  function wakePill() {
+    if (!pill || !fsEl || !settings.enabled || visible) return;
+    pill.hidden = false;
+
+    if (pillIdleTimer) window.clearTimeout(pillIdleTimer);
+    pillIdleTimer = window.setTimeout(() => {
+      pillIdleTimer = 0;
+      if (pill && !visible) pill.hidden = true;
+    }, PILL_IDLE_MS);
+  }
+
+  function sleepPill() {
+    if (pillIdleTimer) {
+      window.clearTimeout(pillIdleTimer);
+      pillIdleTimer = 0;
+    }
+    if (pill) pill.hidden = true;
+  }
+
   function createPill() {
     const button = make('button', 'fscfk-pill', { type: 'button' });
     button.id = 'fscfk-pill';
@@ -1457,6 +1495,7 @@
 
     button.addEventListener('click', (event) => {
       event.stopPropagation();
+      suppressAutoOpen = false;
       if (active) openPanel();
       else activate();
     });
@@ -1468,14 +1507,15 @@
     if (!settings.enabled || !fsEl) return;
     if (!pill) pill = createPill();
     if (!pill.isConnected) fsEl.appendChild(pill);
-    pill.hidden = false;
+    wakePill();
   }
 
   function hidePill() {
-    if (pill) pill.hidden = true;
+    sleepPill();
   }
 
   function unmountPill() {
+    sleepPill();
     if (pill) {
       pill.remove();
       pill = null;
@@ -1564,6 +1604,16 @@
     chatObserver.observe(chatHost, { childList: true });
   }
 
+  // ------------------------------------------------------- player activity
+
+  // Kick brings its controls back on pointer/keyboard activity. Use those same
+  // events to bring the pill back only while the chat panel is closed.
+  function onPlayerActivity(event) {
+    if (!fsEl || !settings.enabled || visible) return;
+    if (event.type === 'pointermove' && panel && panel.contains(event.target)) return;
+    wakePill();
+  }
+
   // --------------------------------------------------------------- hotkey
 
   function onKeyDown(event) {
@@ -1577,6 +1627,7 @@
     event.preventDefault();
     event.stopPropagation();
 
+    suppressAutoOpen = false;
     if (active) {
       if (visible) closePanel();
       else openPanel();
@@ -1611,9 +1662,12 @@
     }
 
     if (!previous.enabled) {
+      suppressAutoOpen = false;
       onFullscreenChange();
       return;
     }
+
+    if (!previous.autoOpen && settings.autoOpen) suppressAutoOpen = false;
 
     if (active) {
       if (
@@ -1647,6 +1701,7 @@
   }
 
   function onNavigate() {
+    suppressAutoOpen = false;
     if (active) deactivate();
   }
 
@@ -1662,6 +1717,10 @@
     document.addEventListener('fullscreenchange', onFullscreenChange, true);
     document.addEventListener('webkitfullscreenchange', onFullscreenChange, true);
     window.addEventListener('keydown', onKeyDown, true);
+    window.addEventListener('keydown', onPlayerActivity, true);
+    document.addEventListener('pointermove', onPlayerActivity, { capture: true, passive: true });
+    document.addEventListener('pointerdown', onPlayerActivity, { capture: true, passive: true });
+    document.addEventListener('touchstart', onPlayerActivity, { capture: true, passive: true });
     window.addEventListener('resize', onWindowResize, { passive: true });
     window.addEventListener('popstate', onNavigate);
 
